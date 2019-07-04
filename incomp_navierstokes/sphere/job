@@ -1,0 +1,9 @@
+g++ -std=c++11 -Iinclude circlebox.cpp -o circ -lgmsh
+./circ 1
+gmsh msh/circbox.msh
+./circ 1.5
+gmsh msh/circbox.msh
+./circ 2
+gmsh msh/circbox.msh
+./circ 2.5
+gmsh msh/circbox.msh
