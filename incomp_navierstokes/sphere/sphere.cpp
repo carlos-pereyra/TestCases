@@ -250,7 +250,7 @@ int main(int argc, char **argv)
     gmsh::write("msh/spherical.msh");
     //gmsh::write("msh/spherical.su2");
     
-    //gmsh::fltk::run();
+    gmsh::fltk::run();
     gmsh::finalize();
     return 0;
 }
