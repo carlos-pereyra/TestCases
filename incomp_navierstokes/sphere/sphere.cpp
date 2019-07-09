@@ -14,9 +14,9 @@
 #include <cmath>
 #include <gmsh.h>
 using namespace std;
-#define RAD_ELEM 3
-#define AZIMUTH_ELEM 5
-#define GROWTH 1
+#define RAD_ELEM 50
+#define AZIMUTH_ELEM 30
+#define GROWTH 1.2
 
 namespace model = gmsh::model;
 namespace geo = gmsh::model::geo;
@@ -141,13 +141,40 @@ void sphereMesh(double x, double y, double r1, double lc, std::vector<int> &boun
     mesh::setTransfiniteVolume(v4); mesh::setRecombine(3, v4);
     mesh::setTransfiniteVolume(v5); mesh::setRecombine(3, v5);
     mesh::setTransfiniteVolume(v6); mesh::setRecombine(3, v6);
+    //msh2::optimize("HighOrder");
+    //mesh::setSmoothing(3,v2);
+    //mesh::setSmoothing(3,v3);
+    //mesh::setSmoothing(3,v4);
+    //mesh::setSmoothing(3,v5);
+    //mesh::setSmoothing(3,v6);
 
-    model::addPhysicalGroup(3,{v1});
-    model::addPhysicalGroup(3,{v2});
-    model::addPhysicalGroup(3,{v3});
-    model::addPhysicalGroup(3,{v4});
-    model::addPhysicalGroup(3,{v5});
-    model::addPhysicalGroup(3,{v6});
+    int pg1 = model::addPhysicalGroup(2,{17});
+    int pg2 = model::addPhysicalGroup(2,{22});
+    int pg3 = model::addPhysicalGroup(2,{33});
+    int pg4 = model::addPhysicalGroup(2,{7});
+    int pg5 = model::addPhysicalGroup(2,{32});
+    int pg6 = model::addPhysicalGroup(2,{27});
+    
+    model::setPhysicalName(2,pg1,"sphere1");
+    model::setPhysicalName(2,pg2,"sphere2");
+    model::setPhysicalName(2,pg3,"sphere3");
+    model::setPhysicalName(2,pg4,"sphere4");
+    model::setPhysicalName(2,pg5,"sphere5");
+    model::setPhysicalName(2,pg6,"sphere6");
+    
+    int pg7 = model::addPhysicalGroup(3,{v1});
+    int pg8 = model::addPhysicalGroup(3,{v2});
+    int pg9 = model::addPhysicalGroup(3,{v3});
+    int pg10 = model::addPhysicalGroup(3,{v4});
+    int pg11 = model::addPhysicalGroup(3,{v5});
+    int pg12 = model::addPhysicalGroup(3,{v6});
+    
+    model::setPhysicalName(3,pg7,"v1");
+    model::setPhysicalName(3,pg8,"v2");
+    model::setPhysicalName(3,pg9,"v3");
+    model::setPhysicalName(3,pg10,"v4");
+    model::setPhysicalName(3,pg11,"v5");
+    model::setPhysicalName(3,pg12,"v6");
     
     cout << "number of surfaces = " << surfa.size() << endl;
     for(std::size_t i = 0; i < surfa.size(); i++){
@@ -164,7 +191,7 @@ int main(int argc, char **argv)
 {
     std::vector<std::pair<int, int> > ov;
     std::vector<int> boundaries, surfaces, groups;
-    double x=0, y=0, r1=atof(argv[1]), l=atof(argv[2])*2*r1, lc=1e-1;
+    double x=0, y=0, r1=atof(argv[1]), l=atof(argv[2])*2*r1, lc=1e-1, m=2;
     
     gmsh::initialize();
     gmsh::option::setNumber("General.Terminal", 1);
@@ -228,27 +255,33 @@ int main(int argc, char **argv)
     surfaces.push_back(s5);
     surfaces.push_back(s6);
     
-    model::addPhysicalGroup(2,{s1},1);
-    model::addPhysicalGroup(2,{s2},2);
-    model::addPhysicalGroup(2,{s3},3);
-    model::addPhysicalGroup(2,{s4},4);
-    model::addPhysicalGroup(2,{s5},5);
-    model::addPhysicalGroup(2,{s6},6);
+    int pg1 = model::addPhysicalGroup(2,{s1},1);
+    int pg2 = model::addPhysicalGroup(2,{s2},2);
+    int pg3 = model::addPhysicalGroup(2,{s3},3);
+    int pg4 = model::addPhysicalGroup(2,{s4},4);
+    int pg5 = model::addPhysicalGroup(2,{s5},5);
+    int pg6 = model::addPhysicalGroup(2,{s6},6);
     
-    model::setPhysicalName(2,1,"inlet");
-    model::setPhysicalName(2,2,"outlet");
-    model::setPhysicalName(2,3,"wall1");
-    model::setPhysicalName(2,4,"wall2");
-    model::setPhysicalName(2,5,"wall3");
-    model::setPhysicalName(2,6,"wall4");
+    model::setPhysicalName(2,pg1,"outlet");
+    model::setPhysicalName(2,pg2,"inlet");
+    model::setPhysicalName(2,pg3,"wall1");
+    model::setPhysicalName(2,pg4,"wall2");
+    model::setPhysicalName(2,pg5,"wall3");
+    model::setPhysicalName(2,pg6,"wall4");
     
     //create sphere
-    sphereMesh(x,y,r1,lc,boundaries,surfaces);
-    
+    //sphereMesh(x,y,r1,lc,boundaries,surfaces);
+    int sl = geo::addSurfaceLoop({1,2,3,4,5,6}); int v = geo::addVolume({sl});
+    int pg = model::addPhysicalGroup(3,{v});
+    mesh::setTransfiniteVolume(v); mesh::setRecombine(3, v);
+
     gmsh::model::geo::synchronize();
     gmsh::model::mesh::generate(3);
-    gmsh::write("msh/spherical.msh");
-    //gmsh::write("msh/spherical.su2");
+    //gmsh::model::mesh::refine();
+    //gmsh::write("msh/spherical.cgns");
+    gmsh::write("msh/sphere.msh");
+    gmsh::write("msh/sphere.su2");
+    gmsh::write("msh/sphere.vtk");
     
     gmsh::fltk::run();
     gmsh::finalize();
