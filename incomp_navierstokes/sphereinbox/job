@@ -1,0 +1,3 @@
+g++ -std=c++11 -Iinclude sphere.cpp -o spher -lgmsh
+./spher 1 4
+#gmsh msh/spherical.msh
