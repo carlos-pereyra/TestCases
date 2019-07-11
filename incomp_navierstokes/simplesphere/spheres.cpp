@@ -1,6 +1,8 @@
 #include <cstdio>
 #include <iostream>
 #include <cmath>
+#include <string>
+#include <cctype>
 #include <gmsh.h>
 
 using namespace std;
@@ -10,9 +12,10 @@ int main(int argc, char **argv)
 {
     std::vector<std::pair<int, int> > ov;
     std::vector<std::vector<std::pair<int, int> > > ovv;
-    double R = atof(argv[1]), L = 2*R*atof(argv[2]), sep=2*R+atof(argv[3]), angle=atof(argv[4]))
+    double R = atof(argv[1]), L = 2*R*atof(argv[2]), sep=2*R+atof(argv[3]), angle=atof(argv[4]);
     double size=0.5, lc=1e-1;
     double x1=0, y1=0, z1=0, x2=sep*cos(angle), y2=sep*sin(angle), z2=0;
+    char buffer [50];
 
     //INITS
     gmsh::initialize(argc, argv);
@@ -70,10 +73,10 @@ int main(int argc, char **argv)
     gmsh::model::mesh::refine();
     gmsh::model::mesh::setOrder(3);
     gmsh::model::mesh::generate(3);
-    gmsh::write("msh/junk.msh");
-    gmsh::write("msh/junk.su2");
-    gmsh::write("msh/junk.vtk");
-    gmsh::fltk::run();
+    gmsh::write("msh/mesh_sphere.msh");
+    gmsh::write("msh/mesh_sphere.su2");
+    gmsh::write("msh/mesh_sphere.vtk");
+    //gmsh::fltk::run();
     gmsh::finalize();
     return 0;
 
