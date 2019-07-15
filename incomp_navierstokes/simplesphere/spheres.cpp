@@ -12,10 +12,12 @@ int main(int argc, char **argv)
 {
     std::vector<std::pair<int, int> > ov;
     std::vector<std::vector<std::pair<int, int> > > ovv;
-    double R = atof(argv[1]), L = 2*R*atof(argv[2]), sep=2*R+atof(argv[3]), angle=atof(argv[4]);
-    double size=0.5, lc=1e-1;
-    double x1=0, y1=0, z1=0, x2=sep*cos(angle), y2=sep*sin(angle), z2=0;
-    char buffer [50];
+    double D= atof(argv[1]); //diameter of sphere
+    double L= D*atof(argv[2]); //size of cube (2Lx2Lx2L)
+    double sep= D*atof(argv[3]); //diameter size dist.
+    double angle= atof(argv[4]); //rotation of sphere
+    double size= 0.25, lc=1e-1; //mesh params
+    double x1=0, y1=0, z1=0, x2=x1-sep*cos(angle*M_PI/180), y2=y1+sep*sin(angle*M_PI/180), z2=z1-0;
 
     //INITS
     gmsh::initialize(argc, argv);
@@ -41,11 +43,12 @@ int main(int argc, char **argv)
     //GEOMETRY
     //gmsh::model::occ::addBox(-L,-L,-L, 2*L,2*L,2*L, 1);
     gmsh::model::occ::addSphere(abs(x1-x2)/2,abs(y1-y2)/2,abs(z1-z2)/2,L, 1);
-    gmsh::model::occ::addSphere(x1,y1,z1,R, 2);
-    gmsh::model::occ::addSphere(x2,y2,z2,R, 3);
+    gmsh::model::occ::addSphere(x1,y1,z1,D/2, 2);
+    gmsh::model::occ::addSphere(x2,y2,z2,D/2, 3);
     gmsh::model::occ::cut({{3, 1}}, {{3, 2},{3, 3}}, ov, ovv, 4);
     gmsh::model::occ::synchronize();
 
+    cout << "sin(angle)= " << sin(angle*M_PI/180) << " angle " << angle << endl;
     //FIELD OPTIONS - DOESN'T WORK WITH OCC
     //model::mesh::field::add("Distance", 1);
     //model::mesh::field::setNumbers(1, "FacesList", {1,2,3,4,5,6,7});
@@ -73,9 +76,10 @@ int main(int argc, char **argv)
     gmsh::model::mesh::refine();
     gmsh::model::mesh::setOrder(3);
     gmsh::model::mesh::generate(3);
-    gmsh::write("msh/mesh_sphere.msh");
-    gmsh::write("msh/mesh_sphere.su2");
-    gmsh::write("msh/mesh_sphere.vtk");
+    gmsh::write("mesh_sphere.msh");
+    gmsh::write("mesh_sphere.su2");
+    gmsh::write("mesh_sphere.vtk");
+    
     //gmsh::fltk::run();
     gmsh::finalize();
     return 0;
