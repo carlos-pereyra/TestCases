@@ -8,12 +8,12 @@ with open("params.txt",'r') as paramfile:
 '''
 
 if params.inc_sep is not 0: 
-	ndists= (params.max_sep-params.min_sep)/params.inc_sep+1
+	ndists= int((params.max_sep-params.min_sep)/params.inc_sep)+1
 else:
 	ndists= 1
 
 if params.inc_angle is not 0: 
-	nangles= (params.max_angle-params.min_angle)/params.inc_angle+1
+	nangles= int((params.max_angle-params.min_angle)/params.inc_angle)+1
 else:
 	nangles= 1
 
@@ -31,4 +31,6 @@ for dist_idx in range(0,ndists):
 			jobsfile.write("python createDirPlusSU2.py 1 6 {} {}\n".format(dist,ang))
 			jobsfile.write("cd data/dia_1_len_6_sep_{}_ang_{}\n".format(dist,ang))
 			jobsfile.write("../.././try 1 6 {} {}\n".format(dist,ang))
-			jobsfile.write("parallel_computation.py -n 1 -f lam_sphere_2body.cfg\n\n")
+			jobsfile.write("SU2_CFD lam_sphere_2body.cfg\n")
+			#jobsfile.write("parallel_computation.py -n 1 -f lam_sphere_2body.cfg\n")
+			jobsfile.write("cd ../..\n\n")

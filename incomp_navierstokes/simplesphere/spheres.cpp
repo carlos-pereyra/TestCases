@@ -16,8 +16,10 @@ int main(int argc, char **argv)
     double L= D*atof(argv[2]); //size of cube (2Lx2Lx2L)
     double sep= D*atof(argv[3]); //diameter size dist.
     double angle= atof(argv[4]); //rotation of sphere
-    double size= 0.25, lc=1e-1; //mesh params
-    double x1=0, y1=0, z1=0, x2=x1-sep*cos(angle*M_PI/180), y2=y1+sep*sin(angle*M_PI/180), z2=z1-0;
+    double size= 0.4, lc=1e-1; //mesh params
+    double x1=0, y1=0, z1=0;
+    double x2=x1-sep*cos(angle*M_PI/180), y2=y1+sep*sin(angle*M_PI/180), z2=z1-0;
+    double x3=(x1-sep*cos(angle*M_PI/180))/2, y3=(y1+sep*sin(angle*M_PI/180))/2, z3=(z1-z2)/2;
 
     //INITS
     gmsh::initialize(argc, argv);
@@ -42,7 +44,7 @@ int main(int argc, char **argv)
     
     //GEOMETRY
     //gmsh::model::occ::addBox(-L,-L,-L, 2*L,2*L,2*L, 1);
-    gmsh::model::occ::addSphere(abs(x1-x2)/2,abs(y1-y2)/2,abs(z1-z2)/2,L, 1);
+    gmsh::model::occ::addSphere(x3,y3,z3,L+sep, 1);
     gmsh::model::occ::addSphere(x1,y1,z1,D/2, 2);
     gmsh::model::occ::addSphere(x2,y2,z2,D/2, 3);
     gmsh::model::occ::cut({{3, 1}}, {{3, 2},{3, 3}}, ov, ovv, 4);
