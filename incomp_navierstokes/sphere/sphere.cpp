@@ -21,6 +21,7 @@ using namespace std;
 namespace model = gmsh::model;
 namespace geo = gmsh::model::geo;
 namespace mesh = gmsh::model::geo::mesh;
+namespace factory = gmsh::model::geo;
 
 void sphereMesh(double x, double y, double z, double r1, double r2, int v1, std::vector<int> &boundaries, std::vector<int> &surfaces, int sphere_tag){
     /*
@@ -42,15 +43,15 @@ void sphereMesh(double x, double y, double z, double r1, double r2, int v1, std:
     //bottom inner circle points
     int p8 = geo::addPoint(x   , y-r1 , z, 1e-1);
     int p9 = geo::addPoint(x   , y+r1 , z, 1e-1);
-
+    
     /*
      * BOUNDARY SETUP
      */
     //circle lines -> zenith angle
     int c1 = geo::addCircleArc(p4, p1, p3); mesh::setTransfiniteCurve(c1,CircleNodes,"Progression",1);
     int c3 = geo::addCircleArc(p2, p1, p3); mesh::setTransfiniteCurve(c3,CircleNodes,"Progression",1);
-    int c2 = geo::addCircleArc(p5, p1, p6); mesh::setTransfiniteCurve(c2,CircleNodes,"Progression",1);
-    int c4 = geo::addCircleArc(p7, p1, p6); mesh::setTransfiniteCurve(c4,CircleNodes,"Progression",1);
+    int c2 = geo::addCircleArc(p5, p1, p6); mesh::setTransfiniteCurve(c2,CircleNodes,"Progression",1); //outer
+    int c4 = geo::addCircleArc(p7, p1, p6); mesh::setTransfiniteCurve(c4,CircleNodes,"Progression",1); //outer
     //outer circle lines -> radial direction
     int l5 = geo::addLine(p4, p5); mesh::setTransfiniteCurve(l5,QuarterNodes,"Progression",Growth);
     int l6 = geo::addLine(p2, p7); mesh::setTransfiniteCurve(l6,QuarterNodes,"Progression",Growth);
@@ -106,144 +107,69 @@ void sphereMesh(double x, double y, double z, double r1, double r2, int v1, std:
     /*
      * PHYSICAL GROUPS
      */
-    //curves
-    //int pg1 = model::addPhysicalGroup(1, {c1});
-    //int pg2 = model::addPhysicalGroup(1, {c3});
-    //set surface physical group
-    //int pg3 = gmsh::model::addPhysicalGroup(2, {s1});
-    //int pg4 = gmsh::model::addPhysicalGroup(2, {s2});
     int outershell1 = gmsh::model::addPhysicalGroup(2, {Oshell1,Oshell2,Oshell3,Oshell4,Oshell5,Oshell6,Oshell7,Oshell8});
-    //int outershell2 = gmsh::model::addPhysicalGroup(2, {Oshell2});
-    //int outershell3 = gmsh::model::addPhysicalGroup(2, {Oshell3});
-    //int outershell4 = gmsh::model::addPhysicalGroup(2, {Oshell4});
-    //int outershell5 = gmsh::model::addPhysicalGroup(2, {Oshell5});
-    //int outershell6 = gmsh::model::addPhysicalGroup(2, {Oshell6});
-    //int outershell7 = gmsh::model::addPhysicalGroup(2, {Oshell7});
-    //int outershell8 = gmsh::model::addPhysicalGroup(2, {Oshell8});
     int innershell1 = gmsh::model::addPhysicalGroup(2, {Ishell1,Ishell2,Ishell3,Ishell4,Ishell5,Ishell6,Ishell7,Ishell8});
-    //int innershell2 = gmsh::model::addPhysicalGroup(2, {Ishell2});
-    //int innershell3 = gmsh::model::addPhysicalGroup(2, {Ishell3});
-    //int innershell4 = gmsh::model::addPhysicalGroup(2, {Ishell4});
-    //int innershell5 = gmsh::model::addPhysicalGroup(2, {Ishell5});
-    //int innershell6 = gmsh::model::addPhysicalGroup(2, {Ishell6});
-    //int innershell7 = gmsh::model::addPhysicalGroup(2, {Ishell7});
-    //int innershell8 = gmsh::model::addPhysicalGroup(2, {Ishell8});
-    //int test = gmsh::model::occ::addSurfaceLoop({Ishell1,Ishell2,Ishell3,Ishell4,Ishell5,Ishell6,Ishell7,Ishell8},20);
-    //set volume group
     int pg9 = model::addPhysicalGroup(3, {v1,v1+1,v1+2,v1+3,v1+4,v1+5,v1+6,v1+7});
-    //int pg10 = model::addPhysicalGroup(3, {v1+1});
-    //int pg11 = model::addPhysicalGroup(3, {v1+2});
-    //int pg12 = model::addPhysicalGroup(3, {v1+3});
-    //int pg13 = model::addPhysicalGroup(3, {v1+4});
-    //int pg14 = model::addPhysicalGroup(3, {v1+5});
-    //int pg15 = model::addPhysicalGroup(3, {v1+6});
-    //int pg16 = model::addPhysicalGroup(3, {v1+7});
-
-    //mesh::setTransfiniteVolume(v1); //mesh::setRecombine(3, v6);
-    //mesh::setTransfiniteVolume(v1+1); //mesh::setRecombine(3, v6);
-    //mesh::setTransfiniteVolume(v1+2); //mesh::setRecombine(3, v6);
-    //mesh::setTransfiniteVolume(v1+3); //mesh::setRecombine(3, v6);
-    //mesh::setTransfiniteVolume(v1+4); //mesh::setRecombine(3, v6);
-    //mesh::setTransfiniteVolume(v1+5); //mesh::setRecombine(3, v6);
-    //mesh::setTransfiniteVolume(v1+6); //mesh::setRecombine(3, v6);
-    //mesh::setTransfiniteVolume(v1+7); //mesh::setRecombine(3, v6);
     
     if (sphere_tag==1) {
         model::setPhysicalName(2, outershell1, "far");
-        //model::setPhysicalName(2, outershell2, "far2");
-        //model::setPhysicalName(2, outershell3, "far3");
-        //model::setPhysicalName(2, outershell4, "far4");
-        //model::setPhysicalName(2, outershell5, "far5");
-        //model::setPhysicalName(2, outershell6, "far6");
-        //model::setPhysicalName(2, outershell7, "far7");
-        //model::setPhysicalName(2, outershell8, "far8");
         model::setPhysicalName(2, innershell1, "shell1");
-        //model::setPhysicalName(2, innershell2, "bound2");
-        //model::setPhysicalName(2, innershell3, "bound3");
-        //model::setPhysicalName(2, innershell4, "bound4");
-        //model::setPhysicalName(2, innershell5, "bound5");
-        //model::setPhysicalName(2, innershell6, "bound6");
-        //model::setPhysicalName(2, innershell7, "bound7");
-        //model::setPhysicalName(2, innershell8, "bound8");
-        //model::setPhysicalName(1, pg1, "circle1");
-        //model::setPhysicalName(1, pg2, "circle2");
-        //model::setPhysicalName(2, pg3, "circleFace1");
-        //model::setPhysicalName(2, pg4, "circleFace2");
-        
         model::setPhysicalName(3, pg9, "volume");
-        //model::setPhysicalName(3, pg10, "quadrantSphere2");
-        //model::setPhysicalName(3, pg11, "quadrantSphere3");
-        //model::setPhysicalName(3, pg12, "quadrantSphere4");
-        //model::setPhysicalName(3, pg13, "quadrantSphere5");
-        //model::setPhysicalName(3, pg14, "quadrantSphere6");
-        //model::setPhysicalName(3, pg15, "quadrantSphere7");
-        //model::setPhysicalName(3, pg16, "quadrantSphere8");
     }
     if (sphere_tag==2) {
         model::setPhysicalName(2, outershell1, "far2");
-        //model::setPhysicalName(2, outershell2, "far2");
-        //model::setPhysicalName(2, outershell3, "far3");
-        //model::setPhysicalName(2, outershell4, "far4");
-        //model::setPhysicalName(2, outershell5, "far5");
-        //model::setPhysicalName(2, outershell6, "far6");
-        //model::setPhysicalName(2, outershell7, "far7");
-        //model::setPhysicalName(2, outershell8, "far8");
         model::setPhysicalName(2, innershell1, "shell2");
-        //model::setPhysicalName(2, innershell2, "bound2");
-        //model::setPhysicalName(2, innershell3, "bound3");
-        //model::setPhysicalName(2, innershell4, "bound4");
-        //model::setPhysicalName(2, innershell5, "bound5");
-        //model::setPhysicalName(2, innershell6, "bound6");
-        //model::setPhysicalName(2, innershell7, "bound7");
-        //model::setPhysicalName(2, innershell8, "bound8");
-        //model::setPhysicalName(1, pg1, "circle1");
-        //model::setPhysicalName(1, pg2, "circle2");
-        //model::setPhysicalName(2, pg3, "circleFace1");
-        //model::setPhysicalName(2, pg4, "circleFace2");
-        
         model::setPhysicalName(3, pg9, "volume2");
-        //model::setPhysicalName(3, pg10, "quadrantSphere2");
-        //model::setPhysicalName(3, pg11, "quadrantSphere3");
-        //model::setPhysicalName(3, pg12, "quadrantSphere4");
-        //model::setPhysicalName(3, pg13, "quadrantSphere5");
-        //model::setPhysicalName(3, pg14, "quadrantSphere6");
-        //model::setPhysicalName(3, pg15, "quadrantSphere7");
-        //model::setPhysicalName(3, pg16, "quadrantSphere8");
     }
     
-    /*
-     * SAVE TO ARRAY
-     */
-    //save circle boundary curves
-    //boundaries.push_back(c1);
-    //boundaries.push_back(c2);
-    //save spherical shell surfaces
-    //surfaces.push_back(s1);
-    //surfaces.push_back(s2);
-    //save physical groups
-    //groups.push_back(pg1)
+    //enclosure
+    int p10 = geo::addPoint(x-r2 , y+r2+1 , z, 1e-1);
+    int p11 = geo::addPoint(x+r2 , y+r2+1 , z, 1e-1);
+    
+    int l8 = geo::addLine(p7, p11);
+    int l9 = geo::addLine(p5, p10);
+    int l10 = geo::addLine(p10, p11);
+    
+    int cl3 = geo::addCurveLoop({l9, l10, -l8, -c2, c4 }); int s3 = geo::addPlaneSurface({cl3});
+    
+    geo::revolve({{2,s3}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell9 = ov[2].second;
+    int Oshell9 = ov[4].second;
+    
+    geo::revolve({{2,164}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell10 = ov[2].second;
+    int Oshell10 = ov[4].second;
+    
+    geo::revolve({{2,187}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell11 = ov[2].second;
+    int Oshell11 = ov[4].second;
+    
+    geo::revolve({{2,210}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell12 = ov[2].second;
+    int Oshell12 = ov[4].second;
 }
 
-void sphereMesh2Body(double x, double y, double z, double r1, double r2, int v1, std::vector<int> &boundaries, std::vector<int> &surfaces){
+void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z2, double r1, double r2, int v1, std::vector<int> &boundaries, std::vector<int> &surfaces, int sphere_tag){
     /*
      * POINTS
      */
     std::vector<std::pair<int, int> > ov, surfa;
     std::vector<std::pair<int, int> > ov2;
     std::vector<std::vector<std::pair<int, int> > > ovv;
-    //center
-    int p1 = geo::addPoint(x   , y    , z, 1e-1);
+    
+    //SPHERE1 - center
+    int p1 = geo::addPoint(x1   , y1    , z1, 1e-1);
     //inner circle points
-    int p2 = geo::addPoint(x+r1, y    , z, 1e-1);
-    int p3 = geo::addPoint(x   , y+r1 , z, 1e-1);
-    int p4 = geo::addPoint(x-r1, y    , z, 1e-1);
+    int p2 = geo::addPoint(x1+r1, y1    , z1, 1e-1);
+    int p3 = geo::addPoint(x1   , y1+r1 , z1, 1e-1);
+    int p4 = geo::addPoint(x1-r1, y1    , z1, 1e-1);
     //outer circle points
-    int p5 = geo::addPoint(x-r2, y    , z, 1e-1);
-    int p6 = geo::addPoint(x   , y+r2 , z, 1e-1);
-    int p7 = geo::addPoint(x+r2, y    , z, 1e-1);
+    int p5 = geo::addPoint(x1-r2, y1    , z1, 1e-1);
+    int p6 = geo::addPoint(x1   , y1+r2 , z1, 1e-1);
+    int p7 = geo::addPoint(x1+r2, y1    , z1, 1e-1);
     //bottom inner circle points
-    int p8 = geo::addPoint(x   , y-r1 , z, 1e-1);
-    int p9 = geo::addPoint(x   , y+r1 , z, 1e-1);
+    int p8 = geo::addPoint(x1   , y1-r1 , z1, 1e-1);
+    int p9 = geo::addPoint(x1   , y1+r1 , z1, 1e-1);
     
     /*
      * BOUNDARY SETUP
@@ -257,7 +183,7 @@ void sphereMesh2Body(double x, double y, double z, double r1, double r2, int v1,
     int l5 = geo::addLine(p4, p5); mesh::setTransfiniteCurve(l5,QuarterNodes,"Progression",Growth);
     int l6 = geo::addLine(p2, p7); mesh::setTransfiniteCurve(l6,QuarterNodes,"Progression",Growth);
     int l7 = geo::addLine(p3, p6); mesh::setTransfiniteCurve(l7,QuarterNodes,"Progression",Growth);
-    
+
     /*
      * HEMISPHERICAL SLICE SETUP
      */
@@ -272,116 +198,38 @@ void sphereMesh2Body(double x, double y, double z, double r1, double r2, int v1,
     /*
      * SPHERICAL VOLUME SETUP
      */
-    cout << "s1" << s1 << endl;
-    geo::revolve({{2,s1}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    
+    geo::revolve({{2,s1}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell1 = ov[2].second;
     int Oshell1 = ov[4].second;
     
-    geo::revolve({{2,s1+23}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true); //24
+    geo::revolve({{2,24}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell2 = ov[2].second;
     int Oshell2 = ov[4].second;
     
-    geo::revolve({{2,s1+23+17}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true); //41
+    geo::revolve({{2,41}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell3 = ov[2].second;
     int Oshell3 = ov[4].second;
     
-    geo::revolve({{2,s1+23+17+17}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true); //58
+    geo::revolve({{2,58}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell4 = ov[2].second;
     int Oshell4 = ov[4].second;
     
-    geo::revolve({{2,s2}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    geo::revolve({{2,s2}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell5 = ov[2].second;
     int Oshell5 = ov[4].second;
     
-    geo::revolve({{2,s1+23+17+17+17+16}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true); //91
+    geo::revolve({{2,91}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell6 = ov[2].second;
     int Oshell6 = ov[4].second;
     
-    geo::revolve({{2,s1+23+17+17+17+16+17}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true); //108
+    geo::revolve({{2,108}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell7 = ov[2].second;
     int Oshell7 = ov[4].second;
     
-    geo::revolve({{2,s1+23+17+17+17+16+17+17}}, x,y,z, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true); //125
+    geo::revolve({{2,125}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell8 = ov[2].second;
     int Oshell8 = ov[4].second;
-    
-    /*
-     * PHYSICAL GROUPS
-     */
-    //curves
-    //int pg1 = model::addPhysicalGroup(1, {c1});
-    //int pg2 = model::addPhysicalGroup(1, {c3});
-    //set surface physical group
-    //int pg3 = gmsh::model::addPhysicalGroup(2, {s1});
-    //int pg4 = gmsh::model::addPhysicalGroup(2, {s2});
-    /*
-    int outershell1 = gmsh::model::addPhysicalGroup(2, {Oshell1});
-    int outershell2 = gmsh::model::addPhysicalGroup(2, {Oshell2});
-    int outershell3 = gmsh::model::addPhysicalGroup(2, {Oshell3});
-    int outershell4 = gmsh::model::addPhysicalGroup(2, {Oshell4});
-    int outershell5 = gmsh::model::addPhysicalGroup(2, {Oshell5});
-    int outershell6 = gmsh::model::addPhysicalGroup(2, {Oshell6});
-    int outershell7 = gmsh::model::addPhysicalGroup(2, {Oshell7});
-    int outershell8 = gmsh::model::addPhysicalGroup(2, {Oshell8});
-    int innershell1 = gmsh::model::addPhysicalGroup(2, {Ishell1});
-    int innershell2 = gmsh::model::addPhysicalGroup(2, {Ishell2});
-    int innershell3 = gmsh::model::addPhysicalGroup(2, {Ishell3});
-    int innershell4 = gmsh::model::addPhysicalGroup(2, {Ishell4});
-    int innershell5 = gmsh::model::addPhysicalGroup(2, {Ishell5});
-    int innershell6 = gmsh::model::addPhysicalGroup(2, {Ishell6});
-    int innershell7 = gmsh::model::addPhysicalGroup(2, {Ishell7});
-    int innershell8 = gmsh::model::addPhysicalGroup(2, {Ishell8});
-    //int test = gmsh::model::occ::addSurfaceLoop({Ishell1,Ishell2,Ishell3,Ishell4,Ishell5,Ishell6,Ishell7,Ishell8},20);
-    //set volume group
-    int pg9 = model::addPhysicalGroup(3, {v1});
-    int pg10 = model::addPhysicalGroup(3, {v1+1});
-    int pg11 = model::addPhysicalGroup(3, {v1+2});
-    int pg12 = model::addPhysicalGroup(3, {v1+3});
-    int pg13 = model::addPhysicalGroup(3, {v1+4});
-    int pg14 = model::addPhysicalGroup(3, {v1+5});
-    int pg15 = model::addPhysicalGroup(3, {v1+6});
-    int pg16 = model::addPhysicalGroup(3, {v1+7});
-    //gmsh::model::occ::fuse({{3, 1}, {3, 2}}, {{3, 10}}, ov2, ovv, 10);
-    
-    mesh::setTransfiniteVolume(v1); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+1); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+2); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+3); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+4); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+5); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+6); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+7); //mesh::setRecombine(3, v6);
-    
-    model::setPhysicalName(2, outershell1, "farr1");
-    model::setPhysicalName(2, outershell2, "farr2");
-    model::setPhysicalName(2, outershell3, "farr3");
-    model::setPhysicalName(2, outershell4, "farr4");
-    model::setPhysicalName(2, outershell5, "farr5");
-    model::setPhysicalName(2, outershell6, "farr6");
-    model::setPhysicalName(2, outershell7, "farr7");
-    model::setPhysicalName(2, outershell8, "farr8");
-    model::setPhysicalName(2, innershell1, "boundd1");
-    model::setPhysicalName(2, innershell2, "boundd2");
-    model::setPhysicalName(2, innershell3, "boundd3");
-    model::setPhysicalName(2, innershell4, "boundd4");
-    model::setPhysicalName(2, innershell5, "boundd5");
-    model::setPhysicalName(2, innershell6, "boundd6");
-    model::setPhysicalName(2, innershell7, "boundd7");
-    model::setPhysicalName(2, innershell8, "boundd8");
-    //model::setPhysicalName(1, pg1, "circle1");
-    //model::setPhysicalName(1, pg2, "circle2");
-    //model::setPhysicalName(2, pg3, "circleFace1");
-    //model::setPhysicalName(2, pg4, "circleFace2");
-    
-    model::setPhysicalName(3, pg9, "quadrantSpheree1");
-    model::setPhysicalName(3, pg10, "quadrantSpheree2");
-    model::setPhysicalName(3, pg11, "quadrantSpheree3");
-    model::setPhysicalName(3, pg12, "quadrantSpheree4");
-    model::setPhysicalName(3, pg13, "quadrantSpheree5");
-    model::setPhysicalName(3, pg14, "quadrantSpheree6");
-    model::setPhysicalName(3, pg15, "quadrantSpheree7");
-    model::setPhysicalName(3, pg16, "quadrantSpheree8");
-    */
     
     /*
      * SAVE TO ARRAY
@@ -394,22 +242,218 @@ void sphereMesh2Body(double x, double y, double z, double r1, double r2, int v1,
     //surfaces.push_back(s2);
     //save physical groups
     //groups.push_back(pg1)
+    
+    // SPHERE2 - center
+    int p11 = geo::addPoint(x2   , y2    , z2, 1e-1);
+    //inner circle points
+    int p12 = geo::addPoint(x2+r1, y2    , z2, 1e-1);
+    int p13 = geo::addPoint(x2   , y2+r1 , z2, 1e-1);
+    int p14 = geo::addPoint(x2-r1, y2    , z2, 1e-1);
+    //outer circle points
+    int p15 = geo::addPoint(x2-r2, y2    , z2, 1e-1);
+    int p16 = geo::addPoint(x2   , y2+r2 , z2, 1e-1);
+    int p17 = geo::addPoint(x2+r2, y2    , z2, 1e-1);
+    //bottom inner circle points
+    int p18 = geo::addPoint(x2   , y2-r1 , z2, 1e-1);
+    int p19 = geo::addPoint(x2   , y2+r1 , z2, 1e-1);
+    
+    //sphere2
+    //circle lines -> zenith angle
+    int c5 = geo::addCircleArc(p14, p11, p13); mesh::setTransfiniteCurve(c5,CircleNodes,"Progression",1);
+    int c6 = geo::addCircleArc(p12, p11, p13); mesh::setTransfiniteCurve(c6,CircleNodes,"Progression",1);
+    int c7 = geo::addCircleArc(p15, p11, p16); mesh::setTransfiniteCurve(c7,CircleNodes,"Progression",1);
+    int c8 = geo::addCircleArc(p17, p11, p16); mesh::setTransfiniteCurve(c8,CircleNodes,"Progression",1);
+    //outer circle lines -> radial direction
+    int l8 = geo::addLine(p14, p15); mesh::setTransfiniteCurve(l8,QuarterNodes,"Progression",Growth);
+    int l9 = geo::addLine(p12, p17); mesh::setTransfiniteCurve(l9,QuarterNodes,"Progression",Growth);
+    int l10 = geo::addLine(p13, p16); mesh::setTransfiniteCurve(l10,QuarterNodes,"Progression",Growth);
+
+    /*
+     * HEMISPHERICAL SURFACE SETUP
+     */
+    //int cl1 = geo::addCurveLoop({-l5, c1, l7, -c2}); int s1 = geo::addPlaneSurface({cl1});
+    //int cl2 = geo::addCurveLoop({c3, l7, -c4, -l6}); int s2 = geo::addPlaneSurface({cl2});
+    
+    int cl3 = geo::addCurveLoop({-l8, c5, l10, -c7}); int s3 = geo::addPlaneSurface({cl3});
+    int cl4 = geo::addCurveLoop({c6, l10, -c8, -l9}); int s4 = geo::addPlaneSurface({cl4});
+    mesh::setTransfiniteSurface(s3, "Left");
+    mesh::setTransfiniteSurface(s4, "Left");
+    //recombine triangles into quadrangles
+    mesh::setRecombine(2, s3);
+    mesh::setRecombine(2, s4);
+    
+    /*
+     * SPHERICAL VOLUME SETUP
+     */
+    geo::revolve({{2,s3}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell9 = ov[2].second;
+    int Oshell9 = ov[4].second;
+    
+    geo::revolve({{2,159}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell10 = ov[2].second;
+    int Oshell10 = ov[4].second;
+    
+    geo::revolve({{2,176}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell11 = ov[2].second;
+    int Oshell11 = ov[4].second;
+
+    geo::revolve({{2,193}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell12 = ov[2].second;
+    int Oshell12 = ov[4].second;
+    
+    geo::revolve({{2,s4}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell13 = ov[2].second;
+    int Oshell13 = ov[4].second;
+    
+    geo::revolve({{2,226}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell14 = ov[2].second;
+    int Oshell14 = ov[4].second;
+
+    geo::revolve({{2,243}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell15 = ov[2].second;
+    int Oshell15 = ov[4].second;
+    
+    geo::revolve({{2,260}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell16 = ov[2].second;
+    int Oshell16 = ov[4].second;
+    
+    //enclosure
+    
+    //top plane
+    int p21 = geo::addPoint( 10+r2 , 10 , 10, 1); //85
+    int p22 = geo::addPoint( 10+r2 ,-10 , 10, 1); //86
+    int p23 = geo::addPoint(-10+r2 , 10 , 10, 1); //87
+    int p24 = geo::addPoint(-10+r2 ,-10 , 10, 1); //88
+    //bottom plane
+    int p25 = geo::addPoint( 10+r2 , 10 , -10, 1); //89
+    int p26 = geo::addPoint( 10+r2 ,-10 , -10, 1); //90
+    int p27 = geo::addPoint(-10+r2 , 10 , -10, 1); //91
+    int p28 = geo::addPoint(-10+r2 ,-10 , -10, 1); //92
+    
+    int l11 = geo::addLine(p21, p25,1000); //8 -
+    int l12 = geo::addLine(p25, p26,1001);
+    int l13 = geo::addLine(p26, p22,1002);
+    int l14 = geo::addLine(p22, p21,1003);
+    
+    int cl5 = geo::addCurveLoop({l11, l12, l13, l14 }); int s5 = geo::addPlaneSurface({cl5}); //276
+    mesh::setTransfiniteSurface(s5, "Left");
+
+    int l15 = geo::addLine(p23, p27,1004); //8 -
+    int l16 = geo::addLine(p27, p28,1005);
+    int l17 = geo::addLine(p28, p24,1006);
+    int l18 = geo::addLine(p24, p23,1007);
+    
+    int cl6 = geo::addCurveLoop({l15, l16, l17, l18 }); int s6 = geo::addPlaneSurface({cl6}); //277
+    mesh::setTransfiniteSurface(s6, "Left");
+
+    int l19 = geo::addLine(p21, p23,1008); //8 -
+    int l20 = geo::addLine(p22, p24,1009);
+    int l21 = geo::addLine(p26, p28,1010);
+    int l22 = geo::addLine(p25, p27,1011);
+
+    int cl7 = geo::addCurveLoop({l19, -l18, -l20, l14 }); int s7 = geo::addPlaneSurface({cl7}); //278
+    int cl8 = geo::addCurveLoop({-l20, -l13, l21, l17 }); int s8 = geo::addPlaneSurface({cl8}); //279
+    int cl9 = geo::addCurveLoop({l21, l12, -l22, -l16 }); int s9 = geo::addPlaneSurface({cl9}); //280
+    int cl10 = geo::addCurveLoop({l22, -l15, -l19, l11 }); int s10 = geo::addPlaneSurface({cl10}); //281
+
+    mesh::setTransfiniteSurface(s7, "Left");
+    mesh::setTransfiniteSurface(s8, "Left");
+    mesh::setTransfiniteSurface(s9, "Left");
+    mesh::setTransfiniteSurface(s10, "Left");
+
+    mesh::setRecombine(2, s5);
+    mesh::setRecombine(2, s6);
+    mesh::setRecombine(2, s7);
+    mesh::setRecombine(2, s8);
+    mesh::setRecombine(2, s9);
+    mesh::setRecombine(2, s10);
+    
+    factory::addSurfaceLoop({Oshell1, Oshell2, Oshell3, Oshell4, Oshell5, Oshell6, Oshell7, Oshell8, Oshell9, Oshell10, Oshell11, Oshell12, Oshell13, Oshell14, Oshell15, Oshell16,s5,s6,s7,s8,s9,s10},128);
+    factory::addVolume({128}, 129);
+    
+    /*
+    int p20 = geo::addPoint(x1-r2 , y1+r2+1 , z1, 1e-1);
+    int p21 = geo::addPoint(x1+r2 , y1+r2+1 , z1, 1e-1);
+    int p22 = geo::addPoint(x2+r2 , y1+r2+1 , z1, 1e-1);
+
+    int l11 = geo::addLine(p7, p21); //8 -
+    int l12 = geo::addLine(p5, p20);
+    int l13 = geo::addLine(p20, p21);
+    
+    int l14 = geo::addLine(p21, p22);
+    int l15 = geo::addLine(p22, p17);
+    
+    int cl5 = geo::addCurveLoop({l12, l13, -l11, -c2, c4 }); int s5 = geo::addPlaneSurface({cl5});
+    int cl6 = geo::addCurveLoop({l11, l14, l15, -c7, c8 }); int s6 = geo::addPlaneSurface({cl6});
+
+    geo::revolve({{2,s5}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell17 = ov[2].second;
+    int Oshell17 = ov[3].second;
+    
+    geo::revolve({{2,300}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell18 = ov[2].second;
+    int Oshell18 = ov[3].second;
+    
+    geo::revolve({{2,323}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell19 = ov[2].second;
+    int Oshell19 = ov[3].second;
+    
+    geo::revolve({{2,346}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell20 = ov[2].second;
+    int Oshell20 = ov[3].second;
+    
+    geo::revolve({{2,s6}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell21 = ov[2].second;
+    int Oshell21 = ov[3].second;
+    
+    geo::revolve({{2,385}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell22 = ov[2].second;
+    int Oshell22 = ov[3].second;
+    
+    geo::revolve({{2,408}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell23 = ov[2].second;
+    int Oshell23 = ov[3].second;
+    
+    geo::revolve({{2,431}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
+    int Ishell24 = ov[2].second;
+    int Oshell24 = ov[3].second;
+    */
+    
+    /*
+     * PHYSICAL GROUPS
+     */
+    //int outershell1 = gmsh::model::addPhysicalGroup(2, {Oshell1,Oshell2,Oshell3,Oshell4,Oshell5,Oshell6,Oshell7,Oshell8,Oshell9,Oshell10,Oshell11,Oshell12,Oshell13,Oshell14,Oshell15,Oshell16});
+    
+    //int outershell1 = gmsh::model::addPhysicalGroup(2, {Oshell17,Oshell18,Oshell19,Oshell20,Oshell21,Oshell22,Oshell23,Oshell24});
+    int outershell1 = gmsh::model::addPhysicalGroup(2, {276,277,278,279,280,281});
+    int innershell1 = gmsh::model::addPhysicalGroup(2, {Ishell1,Ishell2,Ishell3,Ishell4,Ishell5,Ishell6,Ishell7,Ishell8});
+    int innershell2 = gmsh::model::addPhysicalGroup(2, {Ishell9,Ishell10,Ishell11,Ishell12,Ishell13,Ishell14,Ishell15,Ishell16});
+    //int pg9 = model::addPhysicalGroup(3, {v1,v1+1,v1+2,v1+3,v1+4,v1+5,v1+6,v1+7,v1+8,v1+9,v1+10,v1+11,v1+12,v1+13,v1+14,v1+15,v1+16});
+    int pg9 = model::addPhysicalGroup(3, {v1,v1+1,v1+2,v1+3,v1+4,v1+5,v1+6,v1+7,v1+8,v1+9,v1+10,v1+11,v1+12,v1+13,v1+14,v1+15,v1+16,v1+17,v1+18,v1+19,v1+20,v1+21,v1+22,v1+23,129});
+    
+    model::setPhysicalName(2, outershell1, "far");
+    model::setPhysicalName(2, innershell1, "shell1");
+    model::setPhysicalName(2, innershell2, "shell2");
+    model::setPhysicalName(3, pg9, "volume");
+
 }
 
 int main(int argc, char **argv)
 {
     std::vector<int> boundaries, surfaces, groups;
-    double x=0, y=0, z=0, r1=atof(argv[1]), r2=r1*atof(argv[2]), lc=1e-1;
-    
+    double x1=0, y1=0, z1=0;
+    double x2=5, y2=0, z2=0;
+    double r1=atof(argv[1]), lc=1e-1;
+    //double r2=r1*atof(argv[2]);
     gmsh::initialize();
     gmsh::option::setNumber("General.Terminal", 1);
     gmsh::model::add("sphere1");
 
     //create sphere
-    sphereMesh(x,y,z,r1,r2,1,boundaries,surfaces,1);
-    //sphereMesh(10,0,0,r1,r2,1,boundaries,surfaces,2);
-    //sphereMesh2Body(0,0,0,r1,r2,1,boundaries,surfaces);
-    //sphereMesh2Body(20,0,0,r1,r2,1,boundaries,surfaces);
+    double r2=abs(x1-x2)/2.;
+    
+    //sphereMesh(x1,y1,z1,r1,r2,1,boundaries,surfaces,1);
+    sphereMesh2(x1,y1,z1,x2,y2,z2,r1,r2,1,boundaries,surfaces,1);
 
     gmsh::model::geo::synchronize();
     gmsh::model::geo::removeAllDuplicates();
