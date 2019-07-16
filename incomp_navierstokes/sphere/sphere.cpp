@@ -14,15 +14,15 @@
 #include <cmath>
 #include <gmsh.h>
 using namespace std;
-#define Growth 1.3
-#define QuarterNodes 50
-#define CircleNodes 50
-#define AZIMUTH_ELEMENTS 50
+#define Growth 1
+#define QuarterNodes 10
+#define CircleNodes 10
+#define AZIMUTH_ELEMENTS 10
 namespace model = gmsh::model;
 namespace geo = gmsh::model::geo;
 namespace mesh = gmsh::model::geo::mesh;
 
-void sphereMesh(double x, double y, double z, double r1, double r2, int v1, std::vector<int> &boundaries, std::vector<int> &surfaces){
+void sphereMesh(double x, double y, double z, double r1, double r2, int v1, std::vector<int> &boundaries, std::vector<int> &surfaces, int sphere_tag){
     /*
      * POINTS
      */
@@ -112,72 +112,104 @@ void sphereMesh(double x, double y, double z, double r1, double r2, int v1, std:
     //set surface physical group
     //int pg3 = gmsh::model::addPhysicalGroup(2, {s1});
     //int pg4 = gmsh::model::addPhysicalGroup(2, {s2});
-    int outershell1 = gmsh::model::addPhysicalGroup(2, {Oshell1});
-    int outershell2 = gmsh::model::addPhysicalGroup(2, {Oshell2});
-    int outershell3 = gmsh::model::addPhysicalGroup(2, {Oshell3});
-    int outershell4 = gmsh::model::addPhysicalGroup(2, {Oshell4});
-    int outershell5 = gmsh::model::addPhysicalGroup(2, {Oshell5});
-    int outershell6 = gmsh::model::addPhysicalGroup(2, {Oshell6});
-    int outershell7 = gmsh::model::addPhysicalGroup(2, {Oshell7});
-    int outershell8 = gmsh::model::addPhysicalGroup(2, {Oshell8});
-    int innershell1 = gmsh::model::addPhysicalGroup(2, {Ishell1});
-    int innershell2 = gmsh::model::addPhysicalGroup(2, {Ishell2});
-    int innershell3 = gmsh::model::addPhysicalGroup(2, {Ishell3});
-    int innershell4 = gmsh::model::addPhysicalGroup(2, {Ishell4});
-    int innershell5 = gmsh::model::addPhysicalGroup(2, {Ishell5});
-    int innershell6 = gmsh::model::addPhysicalGroup(2, {Ishell6});
-    int innershell7 = gmsh::model::addPhysicalGroup(2, {Ishell7});
-    int innershell8 = gmsh::model::addPhysicalGroup(2, {Ishell8});
+    int outershell1 = gmsh::model::addPhysicalGroup(2, {Oshell1,Oshell2,Oshell3,Oshell4,Oshell5,Oshell6,Oshell7,Oshell8});
+    //int outershell2 = gmsh::model::addPhysicalGroup(2, {Oshell2});
+    //int outershell3 = gmsh::model::addPhysicalGroup(2, {Oshell3});
+    //int outershell4 = gmsh::model::addPhysicalGroup(2, {Oshell4});
+    //int outershell5 = gmsh::model::addPhysicalGroup(2, {Oshell5});
+    //int outershell6 = gmsh::model::addPhysicalGroup(2, {Oshell6});
+    //int outershell7 = gmsh::model::addPhysicalGroup(2, {Oshell7});
+    //int outershell8 = gmsh::model::addPhysicalGroup(2, {Oshell8});
+    int innershell1 = gmsh::model::addPhysicalGroup(2, {Ishell1,Ishell2,Ishell3,Ishell4,Ishell5,Ishell6,Ishell7,Ishell8});
+    //int innershell2 = gmsh::model::addPhysicalGroup(2, {Ishell2});
+    //int innershell3 = gmsh::model::addPhysicalGroup(2, {Ishell3});
+    //int innershell4 = gmsh::model::addPhysicalGroup(2, {Ishell4});
+    //int innershell5 = gmsh::model::addPhysicalGroup(2, {Ishell5});
+    //int innershell6 = gmsh::model::addPhysicalGroup(2, {Ishell6});
+    //int innershell7 = gmsh::model::addPhysicalGroup(2, {Ishell7});
+    //int innershell8 = gmsh::model::addPhysicalGroup(2, {Ishell8});
     //int test = gmsh::model::occ::addSurfaceLoop({Ishell1,Ishell2,Ishell3,Ishell4,Ishell5,Ishell6,Ishell7,Ishell8},20);
     //set volume group
-    int pg9 = model::addPhysicalGroup(3, {v1});
-    int pg10 = model::addPhysicalGroup(3, {v1+1});
-    int pg11 = model::addPhysicalGroup(3, {v1+2});
-    int pg12 = model::addPhysicalGroup(3, {v1+3});
-    int pg13 = model::addPhysicalGroup(3, {v1+4});
-    int pg14 = model::addPhysicalGroup(3, {v1+5});
-    int pg15 = model::addPhysicalGroup(3, {v1+6});
-    int pg16 = model::addPhysicalGroup(3, {v1+7});
-    //gmsh::model::occ::fuse({{3, 1}, {3, 2}}, {{3, 10}}, ov2, ovv, 10);
+    int pg9 = model::addPhysicalGroup(3, {v1,v1+1,v1+2,v1+3,v1+4,v1+5,v1+6,v1+7});
+    //int pg10 = model::addPhysicalGroup(3, {v1+1});
+    //int pg11 = model::addPhysicalGroup(3, {v1+2});
+    //int pg12 = model::addPhysicalGroup(3, {v1+3});
+    //int pg13 = model::addPhysicalGroup(3, {v1+4});
+    //int pg14 = model::addPhysicalGroup(3, {v1+5});
+    //int pg15 = model::addPhysicalGroup(3, {v1+6});
+    //int pg16 = model::addPhysicalGroup(3, {v1+7});
 
-    mesh::setTransfiniteVolume(v1); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+1); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+2); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+3); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+4); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+5); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+6); //mesh::setRecombine(3, v6);
-    mesh::setTransfiniteVolume(v1+7); //mesh::setRecombine(3, v6);
+    //mesh::setTransfiniteVolume(v1); //mesh::setRecombine(3, v6);
+    //mesh::setTransfiniteVolume(v1+1); //mesh::setRecombine(3, v6);
+    //mesh::setTransfiniteVolume(v1+2); //mesh::setRecombine(3, v6);
+    //mesh::setTransfiniteVolume(v1+3); //mesh::setRecombine(3, v6);
+    //mesh::setTransfiniteVolume(v1+4); //mesh::setRecombine(3, v6);
+    //mesh::setTransfiniteVolume(v1+5); //mesh::setRecombine(3, v6);
+    //mesh::setTransfiniteVolume(v1+6); //mesh::setRecombine(3, v6);
+    //mesh::setTransfiniteVolume(v1+7); //mesh::setRecombine(3, v6);
     
-    model::setPhysicalName(2, outershell1, "far1");
-    model::setPhysicalName(2, outershell2, "far2");
-    model::setPhysicalName(2, outershell3, "far3");
-    model::setPhysicalName(2, outershell4, "far4");
-    model::setPhysicalName(2, outershell5, "far5");
-    model::setPhysicalName(2, outershell6, "far6");
-    model::setPhysicalName(2, outershell7, "far7");
-    model::setPhysicalName(2, outershell8, "far8");
-    model::setPhysicalName(2, innershell1, "bound1");
-    model::setPhysicalName(2, innershell2, "bound2");
-    model::setPhysicalName(2, innershell3, "bound3");
-    model::setPhysicalName(2, innershell4, "bound4");
-    model::setPhysicalName(2, innershell5, "bound5");
-    model::setPhysicalName(2, innershell6, "bound6");
-    model::setPhysicalName(2, innershell7, "bound7");
-    model::setPhysicalName(2, innershell8, "bound8");
-    //model::setPhysicalName(1, pg1, "circle1");
-    //model::setPhysicalName(1, pg2, "circle2");
-    //model::setPhysicalName(2, pg3, "circleFace1");
-    //model::setPhysicalName(2, pg4, "circleFace2");
-
-    model::setPhysicalName(3, pg9, "quadrantSphere1");
-    model::setPhysicalName(3, pg10, "quadrantSphere2");
-    model::setPhysicalName(3, pg11, "quadrantSphere3");
-    model::setPhysicalName(3, pg12, "quadrantSphere4");
-    model::setPhysicalName(3, pg13, "quadrantSphere5");
-    model::setPhysicalName(3, pg14, "quadrantSphere6");
-    model::setPhysicalName(3, pg15, "quadrantSphere7");
-    model::setPhysicalName(3, pg16, "quadrantSphere8");
+    if (sphere_tag==1) {
+        model::setPhysicalName(2, outershell1, "far");
+        //model::setPhysicalName(2, outershell2, "far2");
+        //model::setPhysicalName(2, outershell3, "far3");
+        //model::setPhysicalName(2, outershell4, "far4");
+        //model::setPhysicalName(2, outershell5, "far5");
+        //model::setPhysicalName(2, outershell6, "far6");
+        //model::setPhysicalName(2, outershell7, "far7");
+        //model::setPhysicalName(2, outershell8, "far8");
+        model::setPhysicalName(2, innershell1, "shell1");
+        //model::setPhysicalName(2, innershell2, "bound2");
+        //model::setPhysicalName(2, innershell3, "bound3");
+        //model::setPhysicalName(2, innershell4, "bound4");
+        //model::setPhysicalName(2, innershell5, "bound5");
+        //model::setPhysicalName(2, innershell6, "bound6");
+        //model::setPhysicalName(2, innershell7, "bound7");
+        //model::setPhysicalName(2, innershell8, "bound8");
+        //model::setPhysicalName(1, pg1, "circle1");
+        //model::setPhysicalName(1, pg2, "circle2");
+        //model::setPhysicalName(2, pg3, "circleFace1");
+        //model::setPhysicalName(2, pg4, "circleFace2");
+        
+        model::setPhysicalName(3, pg9, "volume");
+        //model::setPhysicalName(3, pg10, "quadrantSphere2");
+        //model::setPhysicalName(3, pg11, "quadrantSphere3");
+        //model::setPhysicalName(3, pg12, "quadrantSphere4");
+        //model::setPhysicalName(3, pg13, "quadrantSphere5");
+        //model::setPhysicalName(3, pg14, "quadrantSphere6");
+        //model::setPhysicalName(3, pg15, "quadrantSphere7");
+        //model::setPhysicalName(3, pg16, "quadrantSphere8");
+    }
+    if (sphere_tag==2) {
+        model::setPhysicalName(2, outershell1, "far2");
+        //model::setPhysicalName(2, outershell2, "far2");
+        //model::setPhysicalName(2, outershell3, "far3");
+        //model::setPhysicalName(2, outershell4, "far4");
+        //model::setPhysicalName(2, outershell5, "far5");
+        //model::setPhysicalName(2, outershell6, "far6");
+        //model::setPhysicalName(2, outershell7, "far7");
+        //model::setPhysicalName(2, outershell8, "far8");
+        model::setPhysicalName(2, innershell1, "shell2");
+        //model::setPhysicalName(2, innershell2, "bound2");
+        //model::setPhysicalName(2, innershell3, "bound3");
+        //model::setPhysicalName(2, innershell4, "bound4");
+        //model::setPhysicalName(2, innershell5, "bound5");
+        //model::setPhysicalName(2, innershell6, "bound6");
+        //model::setPhysicalName(2, innershell7, "bound7");
+        //model::setPhysicalName(2, innershell8, "bound8");
+        //model::setPhysicalName(1, pg1, "circle1");
+        //model::setPhysicalName(1, pg2, "circle2");
+        //model::setPhysicalName(2, pg3, "circleFace1");
+        //model::setPhysicalName(2, pg4, "circleFace2");
+        
+        model::setPhysicalName(3, pg9, "volume2");
+        //model::setPhysicalName(3, pg10, "quadrantSphere2");
+        //model::setPhysicalName(3, pg11, "quadrantSphere3");
+        //model::setPhysicalName(3, pg12, "quadrantSphere4");
+        //model::setPhysicalName(3, pg13, "quadrantSphere5");
+        //model::setPhysicalName(3, pg14, "quadrantSphere6");
+        //model::setPhysicalName(3, pg15, "quadrantSphere7");
+        //model::setPhysicalName(3, pg16, "quadrantSphere8");
+    }
     
     /*
      * SAVE TO ARRAY
@@ -374,7 +406,8 @@ int main(int argc, char **argv)
     gmsh::model::add("sphere1");
 
     //create sphere
-    sphereMesh(x,y,z,r1,r2,1,boundaries,surfaces);
+    sphereMesh(x,y,z,r1,r2,1,boundaries,surfaces,1);
+    //sphereMesh(10,0,0,r1,r2,1,boundaries,surfaces,2);
     //sphereMesh2Body(0,0,0,r1,r2,1,boundaries,surfaces);
     //sphereMesh2Body(20,0,0,r1,r2,1,boundaries,surfaces);
 
