@@ -1,2 +1,2 @@
 g++ -std=c++11 -Iinclude sphere.cpp -o spher -lgmsh
-./spher 1 2 1 0
+./spher 1 2 1.5 0

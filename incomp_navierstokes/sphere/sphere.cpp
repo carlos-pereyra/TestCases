@@ -149,10 +149,11 @@ void sphereMesh(double x, double y, double z, double r1, double r2, int v1, std:
     int Oshell12 = ov[4].second;
 }
 
-void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z2, double r1, double r2, int v1, std::vector<int> &boundaries, std::vector<int> &surfaces, int sphere_tag){
+void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z2, double r1, double r2, double l, std::vector<int> &boundaries, std::vector<int> &surfaces, int sphere_tag){
     /*
      * POINTS
      */
+    int v1=1;
     std::vector<std::pair<int, int> > ov, surfa;
     std::vector<std::pair<int, int> > ov2;
     std::vector<std::vector<std::pair<int, int> > > ovv;
@@ -322,15 +323,15 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
      */
     
     //top plane
-    int p21 = geo::addPoint( 10-r2 , 10 , 10, 1); //85
-    int p22 = geo::addPoint( 10-r2 ,-10 , 10, 1); //86
-    int p23 = geo::addPoint(-10+r2 , 10 , 10, 1); //87
-    int p24 = geo::addPoint(-10+r2 ,-10 , 10, 1); //88
+    int p21 = geo::addPoint( l-r2 , l , l, 1); //85
+    int p22 = geo::addPoint( l-r2 ,-l , l, 1); //86
+    int p23 = geo::addPoint(-l-r2 , l , l, 1); //87
+    int p24 = geo::addPoint(-l-r2 ,-l , l, 1); //88
     //bottom plane
-    int p25 = geo::addPoint( 10-r2 , 10 , -10, 1); //89
-    int p26 = geo::addPoint( 10-r2 ,-10 , -10, 1); //90
-    int p27 = geo::addPoint(-10+r2 , 10 , -10, 1); //91
-    int p28 = geo::addPoint(-10+r2 ,-10 , -10, 1); //92
+    int p25 = geo::addPoint( l-r2 , l , -l, 1); //89
+    int p26 = geo::addPoint( l-r2 ,-l , -l, 1); //90
+    int p27 = geo::addPoint(-l-r2 , l , -l, 1); //91
+    int p28 = geo::addPoint(-l-r2 ,-l , -l, 1); //92
     
     int l11 = geo::addLine(p21, p25,1000); //8 -
     int l12 = geo::addLine(p25, p26,1001);
@@ -399,7 +400,7 @@ int main(int argc, char **argv)
     double x2=x1-sep*cos(angle*M_PI/180), y2=y1+sep*sin(angle*M_PI/180), z2=z1-0;
     double r1=atof(argv[1])/2;
     double r2=abs(x1-x2)/2.;
-    double size=0.2, l=atof(argv[2]); 
+    double size=1, l=atof(argv[2]); 
  
     //options  
     gmsh::initialize();
@@ -412,7 +413,7 @@ int main(int argc, char **argv)
 
     //create sphere
     //sphereMesh(x1,y1,z1,r1,r2,1,boundaries,surfaces,1);
-    sphereMesh2(x1,y1,z1,x2,y2,z2,r1,r2,1,boundaries,surfaces,1);
+    sphereMesh2(x1,y1,z1,x2,y2,z2,r1,r2,l,boundaries,surfaces,1);
 
     gmsh::model::geo::synchronize();
     gmsh::model::geo::removeAllDuplicates();
