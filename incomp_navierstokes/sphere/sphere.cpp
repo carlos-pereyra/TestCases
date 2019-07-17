@@ -317,16 +317,18 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     int Ishell16 = ov[2].second;
     int Oshell16 = ov[4].second;
     
-    //enclosure
+    /*
+     * ENCLOSURE
+     */
     
     //top plane
-    int p21 = geo::addPoint( 10+r2 , 10 , 10, 1); //85
-    int p22 = geo::addPoint( 10+r2 ,-10 , 10, 1); //86
+    int p21 = geo::addPoint( 10-r2 , 10 , 10, 1); //85
+    int p22 = geo::addPoint( 10-r2 ,-10 , 10, 1); //86
     int p23 = geo::addPoint(-10+r2 , 10 , 10, 1); //87
     int p24 = geo::addPoint(-10+r2 ,-10 , 10, 1); //88
     //bottom plane
-    int p25 = geo::addPoint( 10+r2 , 10 , -10, 1); //89
-    int p26 = geo::addPoint( 10+r2 ,-10 , -10, 1); //90
+    int p25 = geo::addPoint( 10-r2 , 10 , -10, 1); //89
+    int p26 = geo::addPoint( 10-r2 ,-10 , -10, 1); //90
     int p27 = geo::addPoint(-10+r2 , 10 , -10, 1); //91
     int p28 = geo::addPoint(-10+r2 ,-10 , -10, 1); //92
     
@@ -372,57 +374,8 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     factory::addVolume({128}, 129);
     
     /*
-    int p20 = geo::addPoint(x1-r2 , y1+r2+1 , z1, 1e-1);
-    int p21 = geo::addPoint(x1+r2 , y1+r2+1 , z1, 1e-1);
-    int p22 = geo::addPoint(x2+r2 , y1+r2+1 , z1, 1e-1);
-
-    int l11 = geo::addLine(p7, p21); //8 -
-    int l12 = geo::addLine(p5, p20);
-    int l13 = geo::addLine(p20, p21);
-    
-    int l14 = geo::addLine(p21, p22);
-    int l15 = geo::addLine(p22, p17);
-    
-    int cl5 = geo::addCurveLoop({l12, l13, -l11, -c2, c4 }); int s5 = geo::addPlaneSurface({cl5});
-    int cl6 = geo::addCurveLoop({l11, l14, l15, -c7, c8 }); int s6 = geo::addPlaneSurface({cl6});
-
-    geo::revolve({{2,s5}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
-    int Ishell17 = ov[2].second;
-    int Oshell17 = ov[3].second;
-    
-    geo::revolve({{2,300}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
-    int Ishell18 = ov[2].second;
-    int Oshell18 = ov[3].second;
-    
-    geo::revolve({{2,323}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
-    int Ishell19 = ov[2].second;
-    int Oshell19 = ov[3].second;
-    
-    geo::revolve({{2,346}}, x1,y1,z1, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
-    int Ishell20 = ov[2].second;
-    int Oshell20 = ov[3].second;
-    
-    geo::revolve({{2,s6}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
-    int Ishell21 = ov[2].second;
-    int Oshell21 = ov[3].second;
-    
-    geo::revolve({{2,385}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
-    int Ishell22 = ov[2].second;
-    int Oshell22 = ov[3].second;
-    
-    geo::revolve({{2,408}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
-    int Ishell23 = ov[2].second;
-    int Oshell23 = ov[3].second;
-    
-    geo::revolve({{2,431}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
-    int Ishell24 = ov[2].second;
-    int Oshell24 = ov[3].second;
-    */
-    
-    /*
      * PHYSICAL GROUPS
      */
-    //int outershell1 = gmsh::model::addPhysicalGroup(2, {Oshell1,Oshell2,Oshell3,Oshell4,Oshell5,Oshell6,Oshell7,Oshell8,Oshell9,Oshell10,Oshell11,Oshell12,Oshell13,Oshell14,Oshell15,Oshell16});
     
     //int outershell1 = gmsh::model::addPhysicalGroup(2, {Oshell17,Oshell18,Oshell19,Oshell20,Oshell21,Oshell22,Oshell23,Oshell24});
     int outershell1 = gmsh::model::addPhysicalGroup(2, {276,277,278,279,280,281});
@@ -441,17 +394,23 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
 int main(int argc, char **argv)
 {
     std::vector<int> boundaries, surfaces, groups;
+    double sep=atof(argv[3]), angle=atof(argv[4]);
     double x1=0, y1=0, z1=0;
-    double x2=5, y2=0, z2=0;
-    double r1=atof(argv[1]), lc=1e-1;
-    //double r2=r1*atof(argv[2]);
+    double x2=x1-sep*cos(angle*M_PI/180), y2=y1+sep*sin(angle*M_PI/180), z2=z1-0;
+    double r1=atof(argv[1])/2;
+    double r2=abs(x1-x2)/2.;
+    double size=0.2, l=atof(argv[2]); 
+ 
+    //options  
     gmsh::initialize();
     gmsh::option::setNumber("General.Terminal", 1);
+    //gmsh::option::setNumber("Mesh.Algorithm", 6);
+    //gmsh::option::setNumber("Mesh.Algorithm3D", 10); //10HXT - HEXA ALG
+    gmsh::option::setNumber("Mesh.CharacteristicLengthMin", size);
+    gmsh::option::setNumber("Mesh.CharacteristicLengthMax", size);
     gmsh::model::add("sphere1");
 
     //create sphere
-    double r2=abs(x1-x2)/2.;
-    
     //sphereMesh(x1,y1,z1,r1,r2,1,boundaries,surfaces,1);
     sphereMesh2(x1,y1,z1,x2,y2,z2,r1,r2,1,boundaries,surfaces,1);
 
