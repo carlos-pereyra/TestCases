@@ -5,7 +5,7 @@ length= sys.argv[2]
 separation= sys.argv[3]
 angle= sys.argv[4]
 
-storage_path= "data/dia_"+diameter+"_len_"+length+"_sep_"+separation+"_ang_"+angle+"/"
+storage_path=os.environ['LUST2']+"/data/dia_"+diameter+"_len_"+length+"_sep_"+separation+"_ang_"+angle+"/"
 path_exists_bool= os.path.exists(storage_path)
 
 if path_exists_bool is not True:
@@ -13,7 +13,7 @@ if path_exists_bool is not True:
    
 os.chdir(storage_path)
 	
-with open("lam_sphere.cfg",'w') as meshfile:
+with open("comp_lam_sphere.cfg",'w') as meshfile:
        	meshfile.write("% ------------- DIRECT, ADJOINT, AND LINEARIZED PROBLEM DEFINITION ------------%\n")
 	meshfile.write("PHYSICAL_PROBLEM= NAVIER_STOKES\n")
 	meshfile.write("KIND_TURB_MODEL= NONE\n")
