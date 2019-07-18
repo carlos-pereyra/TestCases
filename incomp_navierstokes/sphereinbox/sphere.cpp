@@ -22,7 +22,7 @@ namespace model = gmsh::model;
 namespace geo = gmsh::model::geo;
 namespace mesh = gmsh::model::geo::mesh;
 
-void sphereMesh(double x, double y, double z, double r1, double l, double lc, std::vector<int> &boundaries, std::vector<int> &surfaces, int sphere_tag, double sep){
+void sphereMesh(double x, double y, double z, double r1, double l, double lc, std::vector<int> &surfaces, std::vector<int> &volumes, int sphere_tag, double sep){
     
     std::vector<std::pair<int, int> > ov, ovv, ovvv, surfa, linessave;
     std::vector<int> tagss;
@@ -321,6 +321,13 @@ void sphereMesh(double x, double y, double z, double r1, double l, double lc, st
         mesh::setTransfiniteVolume(v4); //mesh::setRecombine(3, v4);
         mesh::setTransfiniteVolume(v5); //mesh::setRecombine(3, v5);
         mesh::setTransfiniteVolume(v6); //mesh::setRecombine(3, v6);
+        
+        volumes.push_back(v1);
+        volumes.push_back(v2);
+        volumes.push_back(v3);
+        volumes.push_back(v4);
+        volumes.push_back(v5);
+        volumes.push_back(v6);
     }
     if (sphere_tag==2) {
         sl7 = geo::addSurfaceLoop({84,57,71,78,79,73}); v7 = geo::addVolume({sl7});
@@ -329,48 +336,40 @@ void sphereMesh(double x, double y, double z, double r1, double l, double lc, st
         sl4 = geo::addSurfaceLoop({68,70,69,72,71,6}); v10 = geo::addVolume({sl4});
         sl5 = geo::addSurfaceLoop({83,73,72,75,74,62}); v11 = geo::addVolume({sl5});
         sl6 = geo::addSurfaceLoop({80,75,85,69,76,46}); v12 = geo::addVolume({sl6});
+        
         mesh::setTransfiniteVolume(v7); //mesh::setRecombine(3, v1);
         mesh::setTransfiniteVolume(v8); //mesh::setRecombine(3, v2);
         mesh::setTransfiniteVolume(v9); //mesh::setRecombine(3, v3);
         mesh::setTransfiniteVolume(v10); //mesh::setRecombine(3, v4);
         mesh::setTransfiniteVolume(v11); //mesh::setRecombine(3, v5);
         mesh::setTransfiniteVolume(v12); //mesh::setRecombine(3, v6);
+        
+        volumes.push_back(v7);
+        volumes.push_back(v8);
+        volumes.push_back(v9);
+        volumes.push_back(v10);
+        volumes.push_back(v11);
+        volumes.push_back(v12);
     }
     
     if (sphere_tag == 1){
-        //int pg1 = model::addPhysicalGroup(2,{s1}); model::setPhysicalName(2,pg1,"outlet");
-        //int pg2 = model::addPhysicalGroup(2,{s2}); model::setPhysicalName(2,pg2,"inlet1");
         int pg3 = model::addPhysicalGroup(2,{1,2,3,4,5,84,81,83,82,85}); model::setPhysicalName(2,pg3,"far");
         int pg7 = model::addPhysicalGroup(2,{ss1,ss2,ss3,ss4,ss5,s7}); model::setPhysicalName(2,pg7,"shell1");
-        //int pg14 = model::addPhysicalGroup(3,{v2}); model::setPhysicalName(3,pg14,"v2");
-        //int pg15 = model::addPhysicalGroup(3,{v3}); model::setPhysicalName(3,pg15,"v3");
-        //int pg16 = model::addPhysicalGroup(3,{v4}); model::setPhysicalName(3,pg16,"v4");
-        //int pg17 = model::addPhysicalGroup(3,{v5}); model::setPhysicalName(3,pg17,"v5");
-        //int pg18 = model::addPhysicalGroup(3,{v6}); model::setPhysicalName(3,pg18,"v6");
     }
     if (sphere_tag == 2) {
-        //int pg1 = model::addPhysicalGroup(2,{s1}); model::setPhysicalName(2,pg1,"outlet2");
-        //int pg2 = model::addPhysicalGroup(2,{s2}); model::setPhysicalName(2,pg2,"inlet2");
-        //int pg3 = model::addPhysicalGroup(2,{s3,s4,s5,s6}); model::setPhysicalName(2,pg3,"wall2");
         int pg7 = model::addPhysicalGroup(2,{ss1,ss2,ss3,ss4,ss5,s7}); model::setPhysicalName(2,pg7,"shell2");
-        //int pg13 = model::addPhysicalGroup(3,{v1}); model::setPhysicalName(3,pg13,"v7");
-        //int pg14 = model::addPhysicalGroup(3,{v2}); model::setPhysicalName(3,pg14,"v8");
-        //int pg15 = model::addPhysicalGroup(3,{v3}); model::setPhysicalName(3,pg15,"v9");
-        //int pg16 = model::addPhysicalGroup(3,{v4}); model::setPhysicalName(3,pg16,"v10");
-        //int pg17 = model::addPhysicalGroup(3,{v5}); model::setPhysicalName(3,pg17,"v11");
-        //int pg18 = model::addPhysicalGroup(3,{v6}); model::setPhysicalName(3,pg18,"v12");
-        
-        int pg13 = model::addPhysicalGroup(3,{v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12});
-        model::setPhysicalName(3,pg13,"volume");
     }
+    
+    
+
 }
 
 int main(int argc, char **argv)
 {
-    std::vector<std::pair<int, int> > ov;
-    std::vector<int> boundaries, surfaces, groups;
-    double sep=5, angle=0;
-    double r1=atof(argv[1])/2, L=atof(argv[2])*2*r1, lc=1e-2, l=atof(argv[2])*2*r1;
+    std::vector<std::pair<int, int> > ov, ovv, ovvv, surfacetags;
+    std::vector<int> surfaces, volumes, groups;
+    double sep=atof(argv[3]), angle=atof(argv[4]);
+    double r1=atof(argv[1])/2, L=atof(argv[2])*2*r1, lc=1, l=atof(argv[2])*2*r1;
     double x1=0, y1=0, z1=0;
     double x2=x1-sep*cos(angle*M_PI/180), y2=y1+sep*sin(angle*M_PI/180), z2=z1-0;
     double x3=(x1-sep*cos(angle*M_PI/180))/2, y3=(y1+sep*sin(angle*M_PI/180))/2, z3=(z1-z2)/2;
@@ -380,27 +379,207 @@ int main(int argc, char **argv)
     gmsh::model::add("sphere1");
     
     //create sphere
-    sphereMesh(x1,y1,z1,r1,l,lc,boundaries,surfaces,1,sep);
-    sphereMesh(x2,y2,z2,r1,l,lc,boundaries,surfaces,2,sep);
+    sphereMesh(x1,y1,z1,r1,l,lc,surfaces,volumes,1,sep);
+    sphereMesh(x2,y2,z2,r1,l,lc,surfaces,volumes,2,sep);
 
-    gmsh::model::geo::synchronize();
-    int filling = gmsh::model::addPhysicalGroup(3, {22});
-    gmsh::model::setPhysicalName(3, filling, "outervolume");
+    //BUILD FAR FIELD
+    int p1 = geo::addPoint(  x1-sep/2 , 0, 0, lc); //10 - 100
+    //int p14 = geo::addPoint( 20-sep/2  , 20+sep/2 , -20+sep/2); //10 - 100
+    //int p15 = geo::addPoint(-20-sep/2  , 20+sep/2 , -20+sep/2); //11 - 101
+    //int p16 = geo::addPoint(-20-sep/2  ,-20+sep/2 , -20+sep/2); //12 - 102
+    //int p17 = geo::addPoint( 20-sep/2  ,-20+sep/2 , -20+sep/2); //13 - 103
     
+    int p14 = geo::addPoint(  r1+x1-sep/2+10  , r1+y1+10 , -r1+z1-10, lc); //10 - 100
+    int p15 = geo::addPoint( -r1+x1-sep/2-10  , r1+y1+10 , -r1+z1-10, lc); //11 - 101
+    int p16 = geo::addPoint( -r1+x1-sep/2-10  ,-r1+y1-10 , -r1+z1-10, lc); //12 - 102
+    int p17 = geo::addPoint(  r1+x1-sep/2+10  ,-r1+y1-10 , -r1+z1-10, lc); //13 - 103
+
+    //int p18 = geo::addPoint(  x1-sep/2  ,-r1+y1-10 , -r1+z1-10, lc);
+    //int p19 = geo::addPoint(  x1-sep/2  , r1+y1+10 , -r1+z1-10, lc);
+
+    int c5= geo::addCircleArc(p15, p1, p14);
+    int c6= geo::addCircleArc(p14, p1, p17);
+    int c7= geo::addCircleArc(p17, p1, p16);
+    int c8= geo::addCircleArc(p16, p1, p15);
+    
+    //int c5= geo::addCircleArc(p19, p1, p14);
+    //int c6= geo::addCircleArc(p14, p1, p17);
+    //int c7= geo::addCircleArc(p17, p1, p18);
+    //int c8= geo::addCircleArc(p18,p1,p19);
+    
+    int loop8 = geo::addCurveLoop({c5,c6,c7,c8});
+    int s8 = geo::addSurfaceFilling({loop8});
+    
+    mesh::setTransfiniteCurve(c5,AZIMUTH_ELEM+1,"Progression",1);
+    mesh::setTransfiniteCurve(c6,AZIMUTH_ELEM+1,"Progression",1);
+    mesh::setTransfiniteCurve(c7,AZIMUTH_ELEM+1,"Progression",1);
+    mesh::setTransfiniteCurve(c8,AZIMUTH_ELEM+1,"Progression",1);
+    mesh::setTransfiniteSurface(s8, "Left"); mesh::setRecombine(2, s8);
+    
+    int pg3 = model::addPhysicalGroup(1,{c8}); model::setPhysicalName(1,pg3,"big line");
+
+    /*
+    surfacetags.push_back({2,s8}); //side 1
+    geo::copy({{2, s8}}, ov);
+    geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(20,2)+pow(20,2)),0,0 , M_PI/2 );
+    
+    geo::copy({{2, ov.back().second}}, ov);
+    geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(20,2)+pow(20,2)),0,0 , M_PI/2 );
+    surfacetags.push_back({2,ov.back().second}); //side 3
+    
+    geo::copy({{2, ov.back().second}}, ov);
+    geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(20,2)+pow(20,2)),0,0 , M_PI/2 );
+    surfacetags.push_back({2,ov.back().second}); //side 3
+    
+    geo::copy({{2,ov.back().second}}, ov);
+    geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(20,2)+pow(20,2)),0,0 , M_PI/2 );
+    surfacetags.push_back({2,ov.back().second}); //side 4
+    
+    geo::copy({{2, s8}}, ovv);
+    surfacetags.push_back({2,ovv.back().second}); //side 5
+    geo::rotate( {{2,ovv.back().second}}, x1-sep/2,0,0 , 0,sqrt(pow(20,2)+pow(20,2)),0 , M_PI/2 );
+    
+    geo::copy({{2, s8}}, ovvv);
+    surfacetags.push_back({2,ovvv.back().second}); //side 6
+    geo::rotate( {{2,ovvv.back().second}}, x1-sep/2,0,0, 0,sqrt(pow(20,2)+pow(20,2)),0 , -M_PI/2 );
+    
+    //linessave.push_back({1,ovvv.back().first});
+    
+    int l18 = 75; mesh::setTransfiniteCurve(75,AZIMUTH_ELEM+1,"Progression",1); //18
+    int l19 = 76; mesh::setTransfiniteCurve(76,AZIMUTH_ELEM+1,"Progression",1); //19
+    int l20 = 77; mesh::setTransfiniteCurve(77,AZIMUTH_ELEM+1,"Progression",1); //21
+    int l23 = 78; mesh::setTransfiniteCurve(78,AZIMUTH_ELEM+1,"Progression",1); //23 -l21
+    int l24 = 89; mesh::setTransfiniteCurve(89,AZIMUTH_ELEM+1,"Progression",1); //24 -l22
+    int l26 = 94; mesh::setTransfiniteCurve(94,AZIMUTH_ELEM+1,"Progression",1); //26 -l23
+    int l29 = 99; mesh::setTransfiniteCurve(99,AZIMUTH_ELEM+1,"Progression",1); //29 - l24
+    int l31 = 93;mesh::setTransfiniteCurve(93,AZIMUTH_ELEM+1,"Progression",1); //31 - l25
+    int l32 = 101;mesh::setTransfiniteCurve(101,AZIMUTH_ELEM+1,"Progression",1); //31 - l25
+    int l33 = 88;mesh::setTransfiniteCurve(88,AZIMUTH_ELEM+1,"Progression",1); //31 - l25
+    int l34 = 96;mesh::setTransfiniteCurve(96,AZIMUTH_ELEM+1,"Progression",1); //31 - l25
+    int l35 = 91;mesh::setTransfiniteCurve(91,AZIMUTH_ELEM+1,"Progression",1); //31 - l25
+
+    mesh::setTransfiniteSurface(97, "Left"); mesh::setRecombine(2, 97);//17
+    mesh::setTransfiniteSurface(92, "Left"); mesh::setRecombine(2, 92);//17
+    mesh::setTransfiniteSurface(103, "Left"); mesh::setRecombine(2, 103);//17
+    mesh::setTransfiniteSurface(86, "Left"); mesh::setRecombine(2, 86);//17
+    mesh::setTransfiniteSurface(102, "Left"); mesh::setRecombine(2, 102);//17
+    mesh::setTransfiniteSurface(87, "Left"); mesh::setRecombine(2, 87);//17
+
+    int pg = model::addPhysicalGroup(2,{s8}); model::setPhysicalName(2,pg,"big shell");
+    
+    // CONNECT SPHERE TO CUBE
+    //int l27,l28,l29,l30,l31,l32,l33,l34;
+    //int loopx1,loopx2,loopx3,loopx4,loopx5,loopx6,loopx7,loopx8,loopx9,loopx10,loopx11,loopx12,loopx13,loopx14,loopx15,loopx16,loopx17;
+    //int sx1,sx2,sx3,sx4,sx5,sx6,sx7,sx8,sx9,sx10,sx11,sx12,sx13,sx14,sx15,sx16,sx17;
+    int l36 = geo::addLine(23, 41); mesh::setTransfiniteCurve(l36,RAD_ELEM+1,"Progression",GROWTH);
+    int l37 = geo::addLine(24, 44); mesh::setTransfiniteCurve(l37,RAD_ELEM+1,"Progression",GROWTH);
+    int l38 = geo::addLine(22, 39); mesh::setTransfiniteCurve(l38,RAD_ELEM+1,"Progression",GROWTH);
+    int l39 = geo::addLine(21, 38); mesh::setTransfiniteCurve(l35,RAD_ELEM+1,"Progression",GROWTH);
+    int l40 = geo::addLine(6, 43); mesh::setTransfiniteCurve(l40,RAD_ELEM+1,"Progression",GROWTH);
+    int l41 = geo::addLine(9, 46); mesh::setTransfiniteCurve(l41,RAD_ELEM+1,"Progression",GROWTH);
+    int l42 = geo::addLine(5, 40); mesh::setTransfiniteCurve(l42,RAD_ELEM+1,"Progression",GROWTH);
+    int l43 = geo::addLine(2, 37); mesh::setTransfiniteCurve(l43,RAD_ELEM+1,"Progression",GROWTH);
+    
+    //int pg2 = model::addPhysicalGroup(1,{l36}); model::setPhysicalName(1,pg2,"big line");
+
+    int loop1= geo::addCurveLoop({103, -96, -102, 44}); int s1 = geo::addPlaneSurface({loop1});
+    int loop2= geo::addCurveLoop({107, -93, -103, 42,6}); int s2 = geo::addPlaneSurface({loop2});
+    int loop3= geo::addCurveLoop({106, -94, -107, 9}); int s3 = geo::addPlaneSurface({loop3});
+    int loop4= geo::addCurveLoop({102, 88, -106, 4, -41}); int s4 = geo::addPlaneSurface({loop4});
+
+    int loop5= geo::addCurveLoop({108, 99, -107, 12}); int s5 = geo::addPlaneSurface({loop5});
+    int loop6= geo::addCurveLoop({109, 76, -108, 11}); int s6 = geo::addPlaneSurface({loop6});
+    int loop7= geo::addCurveLoop({106, 89, -109, -10}); int s7 = geo::addPlaneSurface({loop7});
+
+    int loop9= geo::addCurveLoop({104, -77, -108, -3, -43}); int s9 = geo::addPlaneSurface({loop9});
+    int loop10= geo::addCurveLoop({105, -78, -104, 46}); int s10 = geo::addPlaneSurface({loop10});
+    int loop11= geo::addCurveLoop({109, -75, -105, 40, -1}); int s11 = geo::addPlaneSurface({loop11});
+
+    int loop12= geo::addCurveLoop({105, 91, -102, -47}); int s12 = geo::addPlaneSurface({loop12});
+    
+    int loop13= geo::addCurveLoop({103, 101, -104, -45}); int s13 = geo::addPlaneSurface({loop13});
+
+    //TRANSFINITE ELEMENTS
+    mesh::setTransfiniteCurve(l36,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(l37,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(l38,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(l39,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(l40,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(l41,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(l42,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(l43,AZIMUTH_ELEM+1,"Progression",1); //18
+    
+    mesh::setTransfiniteCurve(41,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(4,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(88,AZIMUTH_ELEM+1,"Progression",1); //18
+    
+    mesh::setTransfiniteCurve(42,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(6,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(93,AZIMUTH_ELEM+1,"Progression",1); //18
+
+    mesh::setTransfiniteCurve(3,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(43,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(77,AZIMUTH_ELEM+1,"Progression",1); //18
+    
+    mesh::setTransfiniteCurve(40,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(1,AZIMUTH_ELEM+1,"Progression",1); //18
+    mesh::setTransfiniteCurve(75,AZIMUTH_ELEM+1,"Progression",1); //18
+    
+    mesh::setTransfiniteSurface(s1, "Left"); mesh::setRecombine(2, s1);
+    //mesh::setTransfiniteSurface(s2, "Left"); mesh::setRecombine(2, s2);
+    mesh::setTransfiniteSurface(s3, "Left"); mesh::setRecombine(2, s3);
+    //mesh::setTransfiniteSurface(s4, "Left"); mesh::setRecombine(2, s4);
+    mesh::setTransfiniteSurface(s5, "Left"); mesh::setRecombine(2, s5);
+    mesh::setTransfiniteSurface(s6, "Left"); mesh::setRecombine(2, s6);
+    mesh::setTransfiniteSurface(s7, "Left"); mesh::setRecombine(2, s7);
+    //mesh::setTransfiniteSurface(s9, "Left"); mesh::setRecombine(2, s9);
+    mesh::setTransfiniteSurface(s10, "Left"); mesh::setRecombine(2, s10);
+    //mesh::setTransfiniteSurface(s11, "Left"); mesh::setRecombine(2, s11);
+    mesh::setTransfiniteSurface(s12, "Left"); mesh::setRecombine(2, s12);
+     
+    // FAR FIELD VOLUME
+    int v1=volumes.at(0);
+    int v2=volumes.at(1);
+    int v3=volumes.at(2);
+    int v4=volumes.at(3);
+    int v5=volumes.at(4);
+    int v6=volumes.at(5);
+    int v7=volumes.at(6);
+    int v8=volumes.at(7);
+    int v9=volumes.at(8);
+    int v10=volumes.at(9);
+    int v11=volumes.at(10);
+    int v12=volumes.at(11);
+
+    int sl1 = geo::addSurfaceLoop({110,109,108,106,103,2}); int v13 = geo::addVolume({sl1});
+    //int sl2 = geo::addSurfaceLoop({92,106,104,107,1,84,105}); int v14 = geo::addVolume({sl2});
+    //int sl3 = geo::addSurfaceLoop({110,113,114,107,87,4,81}); int v15 = geo::addVolume({sl3});
+    //int sl4 = geo::addSurfaceLoop({97,108,111,105,5,83,115}); int v16 = geo::addVolume({sl4});
+    //int sl7 = geo::addSurfaceLoop({86,111,112,109,85,3,113}); int v17 = geo::addVolume({sl7});
+    int sl8 = geo::addSurfaceLoop({102,115,112,104,114,82}); int v18 = geo::addVolume({sl8});
+
+    // PHYSICAL LABELING
+    int pv = model::addPhysicalGroup(3,{v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12,v13,v18});
+    model::setPhysicalName(3,pv,"volume");
+    */
+    
+    // MESH
     gmsh::model::occ::synchronize();
-    gmsh::model::mesh::generate(3);
+    gmsh::model::mesh::generate(2);
     //gmsh::model::geo::removeAllDuplicates();
     //gmsh::model::geo::symmetrize({{3,6}}, 10,0,0,0);
     //gmsh::model::mesh::refine();
     //gmsh::model::mesh::smooth();
-    //gmsh::model::mesh::setOrder(3);
+    //gmsh::model::mesh::setOrder(2);
     //gmsh::model::mesh::recombine("sphere1");
+    
+    // OUTPUT
     //gmsh::write("msh/spherical.cgns");
-    gmsh::write("mesh_sphere.msh");
-    gmsh::write("mesh_sphere.su2");
-    gmsh::write("mesh_sphere.vtk");
+    //gmsh::write("mesh_sphere.msh");
+    //gmsh::write("mesh_sphere.su2");
+    //gmsh::write("mesh_sphere.vtk");
     //gmsh::view::add("test");
-    //gmsh::fltk::run();
+    gmsh::fltk::run();
     gmsh::finalize();
     return 0;
 }
