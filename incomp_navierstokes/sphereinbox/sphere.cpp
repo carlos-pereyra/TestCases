@@ -14,8 +14,8 @@
 #include <cmath>
 #include <gmsh.h>
 using namespace std;
-#define RAD_ELEM 41
-#define AZIMUTH_ELEM 41
+#define RAD_ELEM 7
+#define AZIMUTH_ELEM 7
 #define GROWTH 1.1
 
 namespace model = gmsh::model;
@@ -415,7 +415,7 @@ int main(int argc, char **argv)
     mesh::setTransfiniteCurve(c8,AZIMUTH_ELEM+1,"Progression",1);
     mesh::setTransfiniteSurface(s8, "Left"); mesh::setRecombine(2, s8);
     
-    int pg3 = model::addPhysicalGroup(1,{c8}); model::setPhysicalName(1,pg3,"big line");
+    //int pg3 = model::addPhysicalGroup(1,{c8}); model::setPhysicalName(1,pg3,"big line");
 
     surfacetags.push_back({2,s8}); //side 1
     geo::copy({{2, s8}}, ov);
@@ -463,12 +463,9 @@ int main(int argc, char **argv)
     mesh::setTransfiniteSurface(102, "Left"); mesh::setRecombine(2, 102);//17
     mesh::setTransfiniteSurface(87, "Left"); mesh::setRecombine(2, 87);//17
 
-    int pg = model::addPhysicalGroup(2,{s8}); model::setPhysicalName(2,pg,"big shell");
+    //int pg = model::addPhysicalGroup(2,{s8}); model::setPhysicalName(2,pg,"big shell");
     
     // CONNECT SPHERE TO CUBE
-    //int l27,l28,l29,l30,l31,l32,l33,l34;
-    //int loopx1,loopx2,loopx3,loopx4,loopx5,loopx6,loopx7,loopx8,loopx9,loopx10,loopx11,loopx12,loopx13,loopx14,loopx15,loopx16,loopx17;
-    //int sx1,sx2,sx3,sx4,sx5,sx6,sx7,sx8,sx9,sx10,sx11,sx12,sx13,sx14,sx15,sx16,sx17;
     int l36 = geo::addLine(23, 41); mesh::setTransfiniteCurve(l36,RAD_ELEM+1,"Progression",1);
     int l37 = geo::addLine(24, 44); mesh::setTransfiniteCurve(l37,RAD_ELEM+1,"Progression",1);
     int l38 = geo::addLine(22, 39); mesh::setTransfiniteCurve(l38,RAD_ELEM+1,"Progression",1);
@@ -585,7 +582,7 @@ int main(int argc, char **argv)
 
     // PHYSICAL LABELING
     //int pg3 = model::addPhysicalGroup(2,{1,2,3,4,5,84,81,83,82,85}); model::setPhysicalName(2,pg3,"far");
-    int pg4 = model::addPhysicalGroup(2,{103,102,87,92,97,86,s14}); model::setPhysicalName(2,pg4,"far");
+    int pg4 = model::addPhysicalGroup(2,{103,102,87,92,97,86}); model::setPhysicalName(2,pg4,"far");
 
     int pv = model::addPhysicalGroup(3,{v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12,v13,v14,v15,v16,v17,v18});
     model::setPhysicalName(3,pv,"volume");
@@ -607,7 +604,7 @@ int main(int argc, char **argv)
     gmsh::write("mesh_sphere.su2");
     gmsh::write("mesh_sphere.vtk");
     //gmsh::view::add("test");
-    //gmsh::fltk::run();
+    gmsh::fltk::run();
     gmsh::finalize();
     return 0;
 }
