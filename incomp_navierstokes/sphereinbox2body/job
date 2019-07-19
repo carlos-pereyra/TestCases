@@ -1,0 +1,3 @@
+g++ -std=c++11 -Iinclude sphere.cpp -o teste -lgmsh
+./teste 1 2 8.1 0
+#gmsh msh/spherical.msh
