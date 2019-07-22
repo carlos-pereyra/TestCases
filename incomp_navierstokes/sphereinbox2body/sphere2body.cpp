@@ -14,11 +14,11 @@
 #include <cmath>
 #include <gmsh.h>
 using namespace std;
-#define RAD_ELEM 21
-#define AZIMUTH_ELEM 21
-#define GROWTH 1
+#define RAD_ELEM 31
+#define AZIMUTH_ELEM 31
+#define GROWTH 1.1
 #define FAR 1
-#define FAR_RAD_ELEM 21
+#define FAR_RAD_ELEM 31
 #define TRANS 1
 
 namespace model = gmsh::model;
@@ -369,7 +369,7 @@ int main(int argc, char **argv)
 {
     std::vector<std::pair<int, int> > ov, ovv, ovvv, surfacetags;
     std::vector<int> surfaces, volumes, groups;
-    double sep=atof(argv[3]), angle=atof(argv[4]);
+    double sep=2*atof(argv[3]), angle=atof(argv[4]);
     double r1=atof(argv[1])/2, L=atof(argv[2])*2*r1, lc=1, l=atof(argv[2])*2*r1;
     double x1=0, y1=0, z1=0;
     double x2=x1-sep*cos(angle*M_PI/180), y2=y1+sep*sin(angle*M_PI/180), z2=z1-0;
@@ -386,10 +386,10 @@ int main(int argc, char **argv)
     if (FAR == 1) {
         //BUILD FAR FIELD
         int p1 = geo::addPoint(  x1-sep/2 , 0, 0, lc);
-        int p14 = geo::addPoint(  r1+x1-sep/2+10  , r1+y1+10 , -r1+z1-10, lc);
-        int p15 = geo::addPoint( -r1+x1-sep/2-10  , r1+y1+10 , -r1+z1-10, lc);
-        int p16 = geo::addPoint( -r1+x1-sep/2-10  ,-r1+y1-10 , -r1+z1-10, lc);
-        int p17 = geo::addPoint(  r1+x1-sep/2+10  ,-r1+y1-10 , -r1+z1-10, lc);
+        int p14 = geo::addPoint(  r1+x1-sep/2+l  , r1+y1+l , -r1+z1-l, lc);
+        int p15 = geo::addPoint( -r1+x1-sep/2-l  , r1+y1+l , -r1+z1-l, lc);
+        int p16 = geo::addPoint( -r1+x1-sep/2-l  ,-r1+y1-l , -r1+z1-l, lc);
+        int p17 = geo::addPoint(  r1+x1-sep/2+l  ,-r1+y1-l , -r1+z1-l, lc);
         
         //int c5= geo::addCircleArc(p15, p1, p14);
         //int c6= geo::addCircleArc(p14, p1, p17);
@@ -479,7 +479,6 @@ int main(int argc, char **argv)
         int l39 = geo::addLine(21, 38); mesh::setTransfiniteCurve(l35,FAR_RAD_ELEM+1,"Progression",1);
         int l40 = geo::addLine(6, 42); mesh::setTransfiniteCurve(l40,FAR_RAD_ELEM+1,"Progression",1);
         int l41 = geo::addLine(9, 44); mesh::setTransfiniteCurve(l41,FAR_RAD_ELEM+1,"Progression",1);
-        //int l41 = geo::addLine(9, 46); mesh::setTransfiniteCurve(l41,FAR_RAD_ELEM,"Progression",1);
         int l42 = geo::addLine(5, 40); mesh::setTransfiniteCurve(l42,FAR_RAD_ELEM+1,"Progression",1);
         int l43 = geo::addLine(2, 37); mesh::setTransfiniteCurve(l43,FAR_RAD_ELEM+1,"Progression",1);
         
