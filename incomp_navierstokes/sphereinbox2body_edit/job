@@ -1,0 +1,3 @@
+g++ -std=c++11 -Iinclude sphere2body.cpp -o run -lgmsh
+./run 1 6 1.2 0
+
