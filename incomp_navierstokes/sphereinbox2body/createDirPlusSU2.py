@@ -18,7 +18,7 @@ with open("lam_sphere.cfg",'w') as meshfile:
 	meshfile.write("PHYSICAL_PROBLEM= NAVIER_STOKES\n")
 	meshfile.write("KIND_TURB_MODEL= NONE\n")
 	meshfile.write("MATH_PROBLEM= DIRECT\n")
-	meshfile.write("RESTART_SOL= NO\n")
+	meshfile.write("RESTART_SOL= YES\n")
        	meshfile.write("% -------------------- COMPRESSIBLE FREE-STREAM DEFINITION --------------------%\n")
        	meshfile.write("MACH_NUMBER= 0.1\n")
 	meshfile.write("AOA= 0.0\n")
@@ -88,3 +88,18 @@ with open("lam_sphere.cfg",'w') as meshfile:
 	meshfile.write("SURFACE_ADJ_FILENAME= surface_adjoint\n")
 	meshfile.write("WRT_SOL_FREQ= 100\n")
 	meshfile.write("WRT_CON_FREQ= 1\n")
+
+meshfile.close()
+
+with open("slurm",'w') as slurmfile:
+	slurmfile.write("#!/bin/bash\n")
+	jobname="D"+diameter+"L"+length+"S"+separation+"A"+angle
+	slurmfile.write("#SBATCH --job-name={}\n".format(jobname))
+	slurmfile.write("#SBATCH -N 1\n")
+	slurmfile.write("#SBATCH -p pbatch\n")
+	slurmfile.write("#SBATCH -A ppims\n")
+	slurmfile.write("#SBATCH -t 24:00:00\n")
+	slurmfile.write("#SBATCH -o screen.out\n")
+	slurmfile.write("srun -N 1 lam_sphere.cfg\n")
+
+slurmfile.close()
