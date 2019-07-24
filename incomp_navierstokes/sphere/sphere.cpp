@@ -15,9 +15,9 @@
 #include <gmsh.h>
 using namespace std;
 #define Growth 1
-#define QuarterNodes 25
-#define CircleNodes 60
-#define AZIMUTH_ELEMENTS 25
+#define QuarterNodes 40
+#define CircleNodes 40
+#define AZIMUTH_ELEMENTS 40
 namespace model = gmsh::model;
 namespace geo = gmsh::model::geo;
 namespace mesh = gmsh::model::geo::mesh;
@@ -41,12 +41,13 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     int p4 = geo::addPoint(x1-r1, y1    , z1, lc);
     //outer circle points
     int p5 = geo::addPoint(x1-r2, y1    , z1, lc);
-    int p6 = geo::addPoint(x1   , y1+r2+l/2 , z1, lc);
+    int p6 = geo::addPoint(x1+l/4   , y1+r2+l/2 , z1, lc);
     int p7 = geo::addPoint(x1+l/2+r2, y1, z1, lc);
     //bottom inner circle points
     int p8 = geo::addPoint(x1   , y1-r1 , z1, lc);
     int p9 = geo::addPoint(x1   , y1+r1 , z1, lc);
     
+    int pc1 = geo::addPoint(l/4   , y1 , z1, lc);
     //
     //BOUNDARY SETUP
     //
@@ -54,15 +55,15 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     int c1 = geo::addCircleArc(p4, p1, p3); mesh::setTransfiniteCurve(c1,CircleNodes,"Progression",1);
     int c3 = geo::addCircleArc(p2, p1, p3); mesh::setTransfiniteCurve(c3,CircleNodes,"Progression",1);
     //int c2 = geo::addCircleArc(p5, p1, p6); mesh::setTransfiniteCurve(c2,CircleNodes,"Progression",1);
-    int c2 = geo::addEllipseArc(p5, p1, p6, p6); mesh::setTransfiniteCurve(c2,CircleNodes,"Progression",1);
+    int c2 = geo::addEllipseArc(p5, pc1, p6, p6); mesh::setTransfiniteCurve(c2,CircleNodes,"Progression",1);
     //int c4 = geo::addCircleArc(p7, p1, p6); mesh::setTransfiniteCurve(c4,CircleNodes,"Progression",1);
     //int c4 = geo::addSpline({p7, p6}); mesh::setTransfiniteCurve(c4,CircleNodes,"Progression",1);
-    int c4 = geo::addEllipseArc(p6, p1, p7, p7); mesh::setTransfiniteCurve(c4,CircleNodes,"Progression",1);
+    int c4 = geo::addEllipseArc(p6, pc1, p7, p7); mesh::setTransfiniteCurve(c4,CircleNodes,"Progression",1);
     //outer circle lines -> radial direction
     int l5 = geo::addLine(p4, p5); mesh::setTransfiniteCurve(l5,QuarterNodes,"Progression",Growth);
     int l6 = geo::addLine(p2, p7); mesh::setTransfiniteCurve(l6,QuarterNodes,"Progression",Growth);
     int l7 = geo::addLine(p3, p6); mesh::setTransfiniteCurve(l7,QuarterNodes,"Progression",Growth);
-
+    
     //
     // HEMISPHERICAL SLICE SETUP
     //
@@ -129,23 +130,24 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     int p14 = geo::addPoint(x2-r1, y2    , z2, lc);
     //outer circle points
     int p15 = geo::addPoint(x2-l/2-r2, y2    , z2, lc);
-    int p16 = geo::addPoint(x2   , y2+r2+l/2 , z2, lc);
+    int p16 = geo::addPoint(x2-l/4, y2+r2+l/2 , z2, lc);
     int p17 = geo::addPoint(x2+r2, y2    , z2, lc);
     //bottom inner circle points
     int p18 = geo::addPoint(x2   , y2-r1 , z2, lc);
     int p19 = geo::addPoint(x2   , y2+r1 , z2, lc);
     
+    int pc11 = geo::addPoint(x2-l/4, y2 , z2, lc);
     //sphere2
     //circle lines -> zenith angle
     int c5 = geo::addCircleArc(p14, p11, p13); mesh::setTransfiniteCurve(c5,CircleNodes,"Progression",1);
     int c6 = geo::addCircleArc(p12, p11, p13); mesh::setTransfiniteCurve(c6,CircleNodes,"Progression",1);
-    int c7 = geo::addEllipseArc(p16, p11, p15, p15); mesh::setTransfiniteCurve(c7,CircleNodes,"Progression",1);
-    int c8 = geo::addEllipseArc(p16, p11, p17, p17); mesh::setTransfiniteCurve(c8,CircleNodes,"Progression",1);
+    int c7 = geo::addEllipseArc(p16, pc11, p15, p15); mesh::setTransfiniteCurve(c7,CircleNodes,"Progression",1);
+    int c8 = geo::addEllipseArc(p16, pc11, p17, p17); mesh::setTransfiniteCurve(c8,CircleNodes,"Progression",1);
     //outer circle lines -> radial direction
     int l8 = geo::addLine(p14, p15); mesh::setTransfiniteCurve(l8,QuarterNodes,"Progression",Growth);
     int l9 = geo::addLine(p12, p17); mesh::setTransfiniteCurve(l9,QuarterNodes,"Progression",Growth);
     int l10 = geo::addLine(p13, p16); mesh::setTransfiniteCurve(l10,QuarterNodes,"Progression",Growth);
-
+    
     /*
      * HEMISPHERICAL SURFACE SETUP
      */
@@ -174,7 +176,7 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     geo::revolve({{2,176}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell11 = ov[2].second;
     int Oshell11 = ov[4].second;
-
+    
     geo::revolve({{2,193}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell12 = ov[2].second;
     int Oshell12 = ov[4].second;
@@ -186,7 +188,7 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     geo::revolve({{2,226}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell14 = ov[2].second;
     int Oshell14 = ov[4].second;
-
+    
     geo::revolve({{2,243}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell15 = ov[2].second;
     int Oshell15 = ov[4].second;
@@ -204,7 +206,7 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     
     //int l11 = geo::addEllipseArc(85, 5, 86, 86, 1000);
     //int l11 = geo::addLine(48, 85, 1000);
-    int l11 = geo::addLine(48, 6, 1000);
+    int l11 = geo::addLine(49, 6, 1000); //49 instead of 48
     //int l12 = geo::addLine(5, 85, 1001);
     //int l13 = geo::addLine(p26, p22,1002);
     
@@ -214,7 +216,7 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     geo::revolve({{2,s5}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell17 = ov[2].second;
     int Oshell17 = ov[4].second;
-
+    
     geo::revolve({{2,1015}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell18 = ov[2].second;
     int Oshell18 = ov[4].second;
@@ -222,7 +224,7 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     geo::revolve({{2,1030}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell19 = ov[2].second;
     int Oshell19 = ov[4].second;
-
+    
     geo::revolve({{2,1045}}, x2,y2,z2, r1,0,0, M_PI/2, ov, {AZIMUTH_ELEMENTS}, {}, true);
     int Ishell20 = ov[2].second;
     int Oshell20 = ov[4].second;
@@ -231,7 +233,7 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     mesh::setTransfiniteCurve(1017,CircleNodes,"Progression",1);
     mesh::setTransfiniteCurve(1032,CircleNodes,"Progression",1);
     mesh::setTransfiniteCurve(1000,CircleNodes,"Progression",1);
-
+    
     //PHYSICAL GROUPS
     //factory::addSurfaceLoop({Oshell1, Oshell2, Oshell3, Oshell4, Oshell5, Oshell6, Oshell7, Oshell8, Oshell9, Oshell10, Oshell11, Oshell12, Oshell13, Oshell14, Oshell15, Oshell16,s5,s6,s7,s8,s9,s10},128);
     //factory::addVolume({128}, 129);
@@ -256,20 +258,20 @@ int main(int argc, char **argv){
     double x2=x1-sep*cos(angle*M_PI/180), y2=y1+sep*sin(angle*M_PI/180), z2=z1-0;
     double r1=atof(argv[1])/2;
     double r2=abs(x1-x2)/2.;
-    double size=0.5, l=atof(argv[2]); 
- 
-    //options  
+    double size=0.15, l=atof(argv[2]);
+    
+    //options
     gmsh::initialize();
     gmsh::option::setNumber("General.Terminal", 1);
     //gmsh::option::setNumber("Mesh.Algorithm", 6);
     //gmsh::option::setNumber("Mesh.Algorithm3D", 10);
-    //gmsh::option::setNumber("Mesh.CharacteristicLengthMin", size);
-    //gmsh::option::setNumber("Mesh.CharacteristicLengthMax", size);
+    gmsh::option::setNumber("Mesh.CharacteristicLengthMin", size);
+    gmsh::option::setNumber("Mesh.CharacteristicLengthMax", size);
     //gmsh::model::add("sphere1");
-
+    
     //create sphere
     sphereMesh2(x1,y1,z1,x2,y2,z2,r1,r2,l,boundaries,surfaces,1);
-
+    
     gmsh::model::geo::synchronize();
     gmsh::model::mesh::generate(3);
     gmsh::option::setNumber("Mesh.Smoothing", 100);
@@ -279,4 +281,5 @@ int main(int argc, char **argv){
     gmsh::fltk::run();
     //gmsh::finalize();
     return 0;
+    
 }
