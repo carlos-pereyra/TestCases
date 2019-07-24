@@ -1,11 +1,5 @@
 import os,sys,params
 
-'''
-with open("params.txt",'r') as paramfile:
-	params = paramfile.read()
-	for lines in params:
-        	lines.rstrip()
-'''
 dia=params.min_dia
 far=params.min_far
 
@@ -21,7 +15,7 @@ else:
 
 print("ndists={} nangles={}".format(ndists,nangles))
 
-with open("slurm","w") as jobsfile:
+with open("jobs","w") as jobsfile:
 	jobsfile.write("g++ -std=c++11 -Iinclude sphere.cpp -o try -lgmsh\n")
 
 for dist_idx in range(0,ndists):
@@ -29,9 +23,9 @@ for dist_idx in range(0,ndists):
 
 	for ang_idx in range(0,nangles):
 		ang= params.min_angle+ang_idx*params.inc_angle
-		with open("slurm","a") as jobsfile:
+		with open("jobs","a") as jobsfile:
 			jobsfile.write("python createDirPlusSU2.py {} {} {} {}\n".format(dia,far,dist,ang))
 			jobsfile.write("cd data/dia_{}_len_{}_sep_{}_ang_{}\n".format(dia,far,dist,ang))
 			jobsfile.write("../.././try {} {} {} {}\n".format(dia,far,dist,ang))
-			jobsfile.write("SU2_CFD lam_sphere.cfg\n")
+			#jobsfile.write("SU2_CFD lam_sphere.cfg\n")
 			jobsfile.write("cd ../..\n\n")

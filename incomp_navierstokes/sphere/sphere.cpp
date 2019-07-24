@@ -14,10 +14,11 @@
 #include <cmath>
 #include <gmsh.h>
 using namespace std;
-#define Growth 1
-#define QuarterNodes 40
-#define CircleNodes 40
-#define AZIMUTH_ELEMENTS 40
+#define Growth 1.1
+#define QuarterNodes 41
+#define CircleNodes 41
+#define AZIMUTH_ELEMENTS 41
+#define TRANS 1
 namespace model = gmsh::model;
 namespace geo = gmsh::model::geo;
 namespace mesh = gmsh::model::geo::mesh;
@@ -52,28 +53,40 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     //BOUNDARY SETUP
     //
     //circle lines -> zenith angle
-    int c1 = geo::addCircleArc(p4, p1, p3); mesh::setTransfiniteCurve(c1,CircleNodes,"Progression",1);
-    int c3 = geo::addCircleArc(p2, p1, p3); mesh::setTransfiniteCurve(c3,CircleNodes,"Progression",1);
+    int c1 = geo::addCircleArc(p4, p1, p3);
+    int c3 = geo::addCircleArc(p2, p1, p3);
     //int c2 = geo::addCircleArc(p5, p1, p6); mesh::setTransfiniteCurve(c2,CircleNodes,"Progression",1);
-    int c2 = geo::addEllipseArc(p5, pc1, p6, p6); mesh::setTransfiniteCurve(c2,CircleNodes,"Progression",1);
+    int c2 = geo::addEllipseArc(p5, pc1, p6, p6);
     //int c4 = geo::addCircleArc(p7, p1, p6); mesh::setTransfiniteCurve(c4,CircleNodes,"Progression",1);
     //int c4 = geo::addSpline({p7, p6}); mesh::setTransfiniteCurve(c4,CircleNodes,"Progression",1);
-    int c4 = geo::addEllipseArc(p6, pc1, p7, p7); mesh::setTransfiniteCurve(c4,CircleNodes,"Progression",1);
+    int c4 = geo::addEllipseArc(p6, pc1, p7, p7);
     //outer circle lines -> radial direction
-    int l5 = geo::addLine(p4, p5); mesh::setTransfiniteCurve(l5,QuarterNodes,"Progression",Growth);
-    int l6 = geo::addLine(p2, p7); mesh::setTransfiniteCurve(l6,QuarterNodes,"Progression",Growth);
-    int l7 = geo::addLine(p3, p6); mesh::setTransfiniteCurve(l7,QuarterNodes,"Progression",Growth);
+    int l5 = geo::addLine(p4, p5);
+    int l6 = geo::addLine(p2, p7);
+    int l7 = geo::addLine(p3, p6);
     
     //
     // HEMISPHERICAL SLICE SETUP
     //
     int cl1 = geo::addCurveLoop({-l5, c1, l7, -c2}); int s1 = geo::addPlaneSurface({cl1});
     int cl2 = geo::addCurveLoop({c3, l7, c4, -l6}); int s2 = geo::addPlaneSurface({cl2});
-    mesh::setTransfiniteSurface(s1, "Left", {p4 , p5 , p3 , p6});
-    mesh::setTransfiniteSurface(s2, "Left", {p7 , p2 , p3 , p6});
-    //recombine triangles into quadrangles
-    mesh::setRecombine(2, s1);
-    mesh::setRecombine(2, s2);
+    
+    if (TRANS) {
+        mesh::setTransfiniteCurve(c1,CircleNodes,"Progression",1);
+        mesh::setTransfiniteCurve(c3,CircleNodes,"Progression",1);
+        mesh::setTransfiniteCurve(c2,CircleNodes,"Progression",1);
+        mesh::setTransfiniteCurve(c4,CircleNodes,"Progression",1);
+        
+        mesh::setTransfiniteCurve(l5,QuarterNodes,"Progression",Growth);
+        mesh::setTransfiniteCurve(l6,QuarterNodes,"Progression",Growth);
+        mesh::setTransfiniteCurve(l7,QuarterNodes,"Progression",Growth);
+        
+        mesh::setTransfiniteSurface(s1, "Left", {p4 , p5 , p3 , p6});
+        mesh::setTransfiniteSurface(s2, "Left", {p7 , p2 , p3 , p6});
+        //recombine triangles into quadrangles
+        mesh::setRecombine(2, s1);
+        mesh::setRecombine(2, s2);
+    }
     
     //
     // SPHERICAL VOLUME SETUP
@@ -139,14 +152,14 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     int pc11 = geo::addPoint(x2-l/4, y2 , z2, lc);
     //sphere2
     //circle lines -> zenith angle
-    int c5 = geo::addCircleArc(p14, p11, p13); mesh::setTransfiniteCurve(c5,CircleNodes,"Progression",1);
-    int c6 = geo::addCircleArc(p12, p11, p13); mesh::setTransfiniteCurve(c6,CircleNodes,"Progression",1);
-    int c7 = geo::addEllipseArc(p16, pc11, p15, p15); mesh::setTransfiniteCurve(c7,CircleNodes,"Progression",1);
-    int c8 = geo::addEllipseArc(p16, pc11, p17, p17); mesh::setTransfiniteCurve(c8,CircleNodes,"Progression",1);
+    int c5 = geo::addCircleArc(p14, p11, p13);
+    int c6 = geo::addCircleArc(p12, p11, p13);
+    int c7 = geo::addEllipseArc(p16, pc11, p15, p15);
+    int c8 = geo::addEllipseArc(p16, pc11, p17, p17);
     //outer circle lines -> radial direction
-    int l8 = geo::addLine(p14, p15); mesh::setTransfiniteCurve(l8,QuarterNodes,"Progression",Growth);
-    int l9 = geo::addLine(p12, p17); mesh::setTransfiniteCurve(l9,QuarterNodes,"Progression",Growth);
-    int l10 = geo::addLine(p13, p16); mesh::setTransfiniteCurve(l10,QuarterNodes,"Progression",Growth);
+    int l8 = geo::addLine(p14, p15);
+    int l9 = geo::addLine(p12, p17);
+    int l10 = geo::addLine(p13, p16);
     
     /*
      * HEMISPHERICAL SURFACE SETUP
@@ -156,11 +169,23 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     
     int cl3 = geo::addCurveLoop({-l8, c5, l10, c7}); int s3 = geo::addPlaneSurface({cl3});
     int cl4 = geo::addCurveLoop({c6, l10, c8, -l9}); int s4 = geo::addPlaneSurface({cl4});
-    mesh::setTransfiniteSurface(s3, "Left");
-    mesh::setTransfiniteSurface(s4, "Left");
-    //recombine triangles into quadrangles
-    mesh::setRecombine(2, s3);
-    mesh::setRecombine(2, s4);
+    
+    if (TRANS) {
+        mesh::setTransfiniteCurve(c5,CircleNodes,"Progression",1);
+        mesh::setTransfiniteCurve(c6,CircleNodes,"Progression",1);
+        mesh::setTransfiniteCurve(c7,CircleNodes,"Progression",1);
+        mesh::setTransfiniteCurve(c8,CircleNodes,"Progression",1);
+        
+        mesh::setTransfiniteCurve(l8,QuarterNodes,"Progression",Growth);
+        mesh::setTransfiniteCurve(l9,QuarterNodes,"Progression",Growth);
+        mesh::setTransfiniteCurve(l10,QuarterNodes,"Progression",Growth);
+        
+        mesh::setTransfiniteSurface(s3, "Left");
+        mesh::setTransfiniteSurface(s4, "Left");
+        //recombine triangles into quadrangles
+        mesh::setRecombine(2, s3);
+        mesh::setRecombine(2, s4);
+    }
     
     //
     // SPHERICAL VOLUME SETUP
@@ -229,14 +254,14 @@ void sphereMesh2(double x1, double y1, double z1, double x2, double y2, double z
     int Ishell20 = ov[2].second;
     int Oshell20 = ov[4].second;
     
-    mesh::setTransfiniteCurve(l11,CircleNodes,"Progression",1);
-    mesh::setTransfiniteCurve(1017,CircleNodes,"Progression",1);
-    mesh::setTransfiniteCurve(1032,CircleNodes,"Progression",1);
-    mesh::setTransfiniteCurve(1000,CircleNodes,"Progression",1);
+    if (TRANS) {
+        mesh::setTransfiniteCurve(l11,CircleNodes,"Progression",1);
+        mesh::setTransfiniteCurve(1017,CircleNodes,"Progression",1);
+        mesh::setTransfiniteCurve(1032,CircleNodes,"Progression",1);
+        mesh::setTransfiniteCurve(1000,CircleNodes,"Progression",1);
+    }
     
     //PHYSICAL GROUPS
-    //factory::addSurfaceLoop({Oshell1, Oshell2, Oshell3, Oshell4, Oshell5, Oshell6, Oshell7, Oshell8, Oshell9, Oshell10, Oshell11, Oshell12, Oshell13, Oshell14, Oshell15, Oshell16,s5,s6,s7,s8,s9,s10},128);
-    //factory::addVolume({128}, 129);
     
     //int outershell1 = gmsh::model::addPhysicalGroup(2, {Oshell17,Oshell18,Oshell19,Oshell20});
     int outershell1 = gmsh::model::addPhysicalGroup(2, {106,123,140,89,1008,1023,1038,1053,158,175,192,209});
@@ -258,7 +283,7 @@ int main(int argc, char **argv){
     double x2=x1-sep*cos(angle*M_PI/180), y2=y1+sep*sin(angle*M_PI/180), z2=z1-0;
     double r1=atof(argv[1])/2;
     double r2=abs(x1-x2)/2.;
-    double size=0.15, l=atof(argv[2]);
+    double size=0.03, l=atof(argv[2]);
     
     //options
     gmsh::initialize();

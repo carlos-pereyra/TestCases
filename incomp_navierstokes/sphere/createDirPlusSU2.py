@@ -18,7 +18,7 @@ with open("lam_sphere.cfg",'w') as meshfile:
 	meshfile.write("PHYSICAL_PROBLEM= NAVIER_STOKES\n")
 	meshfile.write("KIND_TURB_MODEL= NONE\n")
 	meshfile.write("MATH_PROBLEM= DIRECT\n")
-	meshfile.write("RESTART_SOL= NO\n")
+	meshfile.write("RESTART_SOL= YES\n")
        	meshfile.write("% -------------------- COMPRESSIBLE FREE-STREAM DEFINITION --------------------%\n")
        	meshfile.write("MACH_NUMBER= 0.1\n")
 	meshfile.write("AOA= 0.0\n")
