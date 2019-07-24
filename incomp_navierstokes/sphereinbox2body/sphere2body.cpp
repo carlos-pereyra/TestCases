@@ -14,11 +14,11 @@
 #include <cmath>
 #include <gmsh.h>
 using namespace std;
-#define RAD_ELEM 31
-#define AZIMUTH_ELEM 31
-#define GROWTH 1.1
+//SPHERICAL REFINEMENT
+#define ELEM_SIZE 0.03
+#define GROWTH 1
+//ENABLE
 #define FAR 1
-#define FAR_RAD_ELEM 31
 #define TRANS 1
 
 namespace model = gmsh::model;
@@ -29,6 +29,17 @@ void sphereMesh(double x, double y, double z, double r1, double l, double lc, st
     
     std::vector<std::pair<int, int> > ov, ovv, ovvv, surfa, linessave;
     std::vector<int> tagss;
+    
+    //ELEMENTS
+    double min_elem_size=ELEM_SIZE;
+    cout << "test" << sep << endl;
+    int n_rad_elems=(0.5*sep-2*r1)/min_elem_size;
+    int n_far_elems=(l-(min_elem_size+(0.5*sep-2*r1)))/(1*min_elem_size);
+    
+    //NODES
+    double RAD_ELEM=n_rad_elems;
+    double AZIMUTH_ELEM=41;
+    double FAR_RAD_ELEM=n_far_elems;
     
     // SPHERE 1
     
@@ -384,6 +395,16 @@ int main(int argc, char **argv)
     sphereMesh(x2,y2,z2,r1,l,lc,surfaces,volumes,2,sep);
     
     if (FAR == 1) {
+        //ELEMENTS
+        double min_elem_size=ELEM_SIZE;
+        int n_rad_elems=sep/min_elem_size;
+        int n_far_elems=(l-(min_elem_size+sep))/(1*min_elem_size);
+        
+        //NODES
+        double RAD_ELEM=n_rad_elems;
+        double AZIMUTH_ELEM=41;
+        double FAR_RAD_ELEM=n_far_elems;
+        
         //BUILD FAR FIELD
         int p1 = geo::addPoint(  x1-sep/2 , 0, 0, lc);
         int p14 = geo::addPoint(  r1+x1-sep/2+l  , r1+y1+l , -r1+z1-l, lc);
@@ -473,14 +494,14 @@ int main(int argc, char **argv)
         }
         
         // CONNECT SPHERE TO CUBE
-        int l36 = geo::addLine(23, 41); mesh::setTransfiniteCurve(l36,FAR_RAD_ELEM+1,"Progression",1);
-        int l37 = geo::addLine(24, 43); mesh::setTransfiniteCurve(l37,FAR_RAD_ELEM+1,"Progression",1);
-        int l38 = geo::addLine(22, 39); mesh::setTransfiniteCurve(l38,FAR_RAD_ELEM+1,"Progression",1);
-        int l39 = geo::addLine(21, 38); mesh::setTransfiniteCurve(l35,FAR_RAD_ELEM+1,"Progression",1);
-        int l40 = geo::addLine(6, 42); mesh::setTransfiniteCurve(l40,FAR_RAD_ELEM+1,"Progression",1);
-        int l41 = geo::addLine(9, 44); mesh::setTransfiniteCurve(l41,FAR_RAD_ELEM+1,"Progression",1);
-        int l42 = geo::addLine(5, 40); mesh::setTransfiniteCurve(l42,FAR_RAD_ELEM+1,"Progression",1);
-        int l43 = geo::addLine(2, 37); mesh::setTransfiniteCurve(l43,FAR_RAD_ELEM+1,"Progression",1);
+        int l36 = geo::addLine(23, 41); //mesh::setTransfiniteCurve(l36,FAR_RAD_ELEM+1,"Progression",1);
+        int l37 = geo::addLine(24, 43); //mesh::setTransfiniteCurve(l37,FAR_RAD_ELEM+1,"Progression",1);
+        int l38 = geo::addLine(22, 39); //mesh::setTransfiniteCurve(l38,FAR_RAD_ELEM+1,"Progression",1);
+        int l39 = geo::addLine(21, 38); //mesh::setTransfiniteCurve(l35,FAR_RAD_ELEM+1,"Progression",1);
+        int l40 = geo::addLine(6, 42); //mesh::setTransfiniteCurve(l40,FAR_RAD_ELEM+1,"Progression",1);
+        int l41 = geo::addLine(9, 44); //mesh::setTransfiniteCurve(l41,FAR_RAD_ELEM+1,"Progression",1);
+        int l42 = geo::addLine(5, 40); //mesh::setTransfiniteCurve(l42,FAR_RAD_ELEM+1,"Progression",1);
+        int l43 = geo::addLine(2, 37); //mesh::setTransfiniteCurve(l43,FAR_RAD_ELEM+1,"Progression",1);
         
         int loop1= geo::addCurveLoop({103, -96, -102, 44}); int s1 = geo::addPlaneSurface({loop1});
 
@@ -522,55 +543,16 @@ int main(int argc, char **argv)
         //int pg3 = model::addPhysicalGroup(1,{c8}); model::setPhysicalName(1,pg3,"big line");
 
         //TRANSFINITE FAR FIELD ELEMENTS
-        if (TRANS==1) {
-            // CONNECT CUBE TO SPHERE TRANSFINITE
-            mesh::setTransfiniteCurve(l36,AZIMUTH_ELEM+1,"Progression",1);
-            mesh::setTransfiniteCurve(l37,AZIMUTH_ELEM+1,"Progression",1);
-            mesh::setTransfiniteCurve(l38,AZIMUTH_ELEM+1,"Progression",1);
-            mesh::setTransfiniteCurve(l39,AZIMUTH_ELEM+1,"Progression",1);
-            mesh::setTransfiniteCurve(l40,AZIMUTH_ELEM+1,"Progression",1);
-            mesh::setTransfiniteCurve(l41,AZIMUTH_ELEM+1,"Progression",1);
-            mesh::setTransfiniteCurve(l42,AZIMUTH_ELEM+1,"Progression",1);
-            mesh::setTransfiniteCurve(l43,AZIMUTH_ELEM+1,"Progression",1);
+        mesh::setTransfiniteCurve(88,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
+        mesh::setTransfiniteCurve(93,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
+        mesh::setTransfiniteCurve(77,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
+        mesh::setTransfiniteCurve(75,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
         
-            //
-            mesh::setTransfiniteCurve(41,AZIMUTH_ELEM+1,"Progression",1); //18
-            mesh::setTransfiniteCurve(4,AZIMUTH_ELEM+1,"Progression",1); //18
-            mesh::setTransfiniteCurve(88,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
-            
-            mesh::setTransfiniteCurve(42,AZIMUTH_ELEM+1,"Progression",1); //18
-            mesh::setTransfiniteCurve(6,AZIMUTH_ELEM+1,"Progression",1); //18
-            mesh::setTransfiniteCurve(93,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
-            
-            mesh::setTransfiniteCurve(3,AZIMUTH_ELEM+1,"Progression",1); //18
-            mesh::setTransfiniteCurve(43,AZIMUTH_ELEM+1,"Progression",1); //18
-            mesh::setTransfiniteCurve(77,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
-            
-            mesh::setTransfiniteCurve(40,AZIMUTH_ELEM+1,"Progression",1);
-            mesh::setTransfiniteCurve(1,AZIMUTH_ELEM+1,"Progression",1);
-            mesh::setTransfiniteCurve(75,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
-            
-            mesh::setTransfiniteCurve(110,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
-            mesh::setTransfiniteCurve(111,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
-            mesh::setTransfiniteCurve(112,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
-            mesh::setTransfiniteCurve(113,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
+        mesh::setTransfiniteCurve(110,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
+        mesh::setTransfiniteCurve(111,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
+        mesh::setTransfiniteCurve(112,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
+        mesh::setTransfiniteCurve(113,2*AZIMUTH_ELEM+1,"Progression",1); //LONG LINE
 
-            //FAR FIELD SURFACE TRANSFINITE
-            mesh::setTransfiniteSurface(s1, "Left"); mesh::setRecombine(2, s1);
-            mesh::setTransfiniteSurface(s2, "Left"); mesh::setRecombine(2, s2);
-            mesh::setTransfiniteSurface(s3, "Left"); mesh::setRecombine(2, s3);
-            mesh::setTransfiniteSurface(s4, "Left"); mesh::setRecombine(2, s4);
-            mesh::setTransfiniteSurface(s5, "Left"); mesh::setRecombine(2, s5);
-            mesh::setTransfiniteSurface(s6, "Left"); mesh::setRecombine(2, s6);
-            mesh::setTransfiniteSurface(s7, "Left"); mesh::setRecombine(2, s7);
-            mesh::setTransfiniteSurface(s9, "Left"); mesh::setRecombine(2, s9);
-            mesh::setTransfiniteSurface(s10, "Left"); mesh::setRecombine(2, s10);
-            mesh::setTransfiniteSurface(s11, "Left"); mesh::setRecombine(2, s11);
-            mesh::setTransfiniteSurface(s12, "Left"); mesh::setRecombine(2, s12);
-            mesh::setTransfiniteSurface(115, "Left"); mesh::setRecombine(2, 115);
-            
-        }
-        
         // FAR FIELD VOLUME
         int v1=volumes.at(0);
         int v2=volumes.at(1);
@@ -595,15 +577,52 @@ int main(int argc, char **argv)
         int sl8 = geo::addSurfaceLoop({102,115,112,104,114,82}); int v18 = geo::addVolume({sl8});
 
         if(TRANS==1){
-                mesh::setTransfiniteVolume(v13); //mesh::setRecombine(3, v1);
-                mesh::setTransfiniteVolume(v14); //mesh::setRecombine(3, v1);
-                mesh::setTransfiniteVolume(v15); //mesh::setRecombine(3, v1);
-                mesh::setTransfiniteVolume(v16); //mesh::setRecombine(3, v1);
-                mesh::setTransfiniteVolume(v17); //mesh::setRecombine(3, v1);
-                mesh::setTransfiniteVolume(v18); //mesh::setRecombine(3, v1);
+            // CONNECT CUBE TO SPHERE TRANSFINITE
+            mesh::setTransfiniteCurve(l36,FAR_RAD_ELEM+10,"Progression",1);
+            mesh::setTransfiniteCurve(l37,FAR_RAD_ELEM+10,"Progression",1);
+            mesh::setTransfiniteCurve(l38,FAR_RAD_ELEM+10,"Progression",1);
+            mesh::setTransfiniteCurve(l39,FAR_RAD_ELEM+10,"Progression",1);
+            mesh::setTransfiniteCurve(l40,FAR_RAD_ELEM+10,"Progression",1);
+            mesh::setTransfiniteCurve(l41,FAR_RAD_ELEM+10,"Progression",1);
+            mesh::setTransfiniteCurve(l42,FAR_RAD_ELEM+10,"Progression",1);
+            mesh::setTransfiniteCurve(l43,FAR_RAD_ELEM+10,"Progression",1);
+            
+            //FAR FIELD LINES
+            mesh::setTransfiniteCurve(41,AZIMUTH_ELEM+1,"Progression",1);
+            mesh::setTransfiniteCurve(4,AZIMUTH_ELEM+1,"Progression",1);
+            
+            mesh::setTransfiniteCurve(42,AZIMUTH_ELEM+1,"Progression",1);
+            mesh::setTransfiniteCurve(6,AZIMUTH_ELEM+1,"Progression",1);
+            
+            mesh::setTransfiniteCurve(3,AZIMUTH_ELEM+1,"Progression",1);
+            mesh::setTransfiniteCurve(43,AZIMUTH_ELEM+1,"Progression",1);
+            
+            mesh::setTransfiniteCurve(40,AZIMUTH_ELEM+1,"Progression",1);
+            mesh::setTransfiniteCurve(1,AZIMUTH_ELEM+1,"Progression",1);
+            
+            //FAR FIELD SURFACE TRANSFINITE
+            mesh::setTransfiniteSurface(s1, "Left"); mesh::setRecombine(2, s1);
+            mesh::setTransfiniteSurface(s2, "Left"); mesh::setRecombine(2, s2);
+            mesh::setTransfiniteSurface(s3, "Left"); mesh::setRecombine(2, s3);
+            mesh::setTransfiniteSurface(s4, "Left"); mesh::setRecombine(2, s4);
+            mesh::setTransfiniteSurface(s5, "Left"); mesh::setRecombine(2, s5);
+            mesh::setTransfiniteSurface(s6, "Left"); mesh::setRecombine(2, s6);
+            mesh::setTransfiniteSurface(s7, "Left"); mesh::setRecombine(2, s7);
+            mesh::setTransfiniteSurface(s9, "Left"); mesh::setRecombine(2, s9);
+            mesh::setTransfiniteSurface(s10, "Left"); mesh::setRecombine(2, s10);
+            mesh::setTransfiniteSurface(s11, "Left"); mesh::setRecombine(2, s11);
+            mesh::setTransfiniteSurface(s12, "Left"); mesh::setRecombine(2, s12);
+            mesh::setTransfiniteSurface(115, "Left"); mesh::setRecombine(2, 115);
+            
+            mesh::setTransfiniteVolume(v13); //mesh::setRecombine(3, v1);
+            mesh::setTransfiniteVolume(v14); //mesh::setRecombine(3, v1);
+            mesh::setTransfiniteVolume(v15); //mesh::setRecombine(3, v1);
+            mesh::setTransfiniteVolume(v16); //mesh::setRecombine(3, v1);
+            mesh::setTransfiniteVolume(v17); //mesh::setRecombine(3, v1);
+            mesh::setTransfiniteVolume(v18); //mesh::setRecombine(3, v1);
         }
+        
         // PHYSICAL LABELING
-        //int pg3 = model::addPhysicalGroup(2,{1,2,3,4,5,84,81,83,82,85}); model::setPhysicalName(2,pg3,"far");
         int pg4 = model::addPhysicalGroup(2,{103,102,87,92,97,86}); model::setPhysicalName(2,pg4,"far");
         
         //int pv = model::addPhysicalGroup(3,{v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12});
@@ -629,7 +648,7 @@ int main(int argc, char **argv)
     gmsh::write("mesh_sphere.su2");
     gmsh::write("mesh_sphere.vtk");
     //gmsh::view::add("test");
-    gmsh::fltk::run();
+    //gmsh::fltk::run();
     gmsh::finalize();
     return 0;
 }
