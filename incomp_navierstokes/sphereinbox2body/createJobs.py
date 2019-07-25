@@ -26,6 +26,6 @@ for dist_idx in range(0,ndists):
 		with open("job","a") as jobsfile:
 			jobsfile.write("python createDirPlusSU2.py {} {} {} {}\n".format(dia,far,dist,ang))
 			jobsfile.write("cd data/dia_{}_len_{}_sep_{}_ang_{}\n".format(dia,far,dist,ang))
-			jobsfile.write("../.././run {} {} {} {}\n".format(dia,far,dist,ang))
+			#jobsfile.write("../.././run {} {} {} {}\n".format(dia,far,dist,ang))
 			#jobsfile.write("SU2_CFD lam_sphere.cfg\n")
 			jobsfile.write("cd ../..\n\n")
