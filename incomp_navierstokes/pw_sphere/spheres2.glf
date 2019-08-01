@@ -1,3 +1,4 @@
+package require PWI_Glyph
 package require PWI_Glyph 2
 
 proc defaults { } {
@@ -24,21 +25,22 @@ proc defaults { } {
 
 }
 
-proc makeASphere {x y z} {
+proc makeASphere {x y z r} {
     #
     #create a sphere
     #
 
     set _TMP(mode_1) [pw::Application begin Create]
     set _TMP(PW_1) [pw::Shape create]
-    $_TMP(PW_1) sphere -radius 1 -baseAngle 0 -topAngle 180
-    $_TMP(PW_1) setTransform [list -1 0 -0 0 -0 -0 1 0 0 1 0 0 $x $y $x 1]
+    $_TMP(PW_1) sphere -radius $r -baseAngle 0 -topAngle 180
+    $_TMP(PW_1) setTransform [list -1 0 -0 0 -0 -0 1 0 0 1 0 0 $x $y $z 1]
     $_TMP(PW_1) setPivot Center
     $_TMP(PW_1) setSectionMinimum 0
     $_TMP(PW_1) setSectionMaximum 360
     $_TMP(PW_1) setSidesType Plane
     $_TMP(PW_1) setBaseType Plane
     $_TMP(PW_1) setTopType Plane
+    #set primative [$_TMP(PW_1) getPrimitive]
     $_TMP(PW_1) setEnclosingEntities {}
     set _TMP(PW_2) [$_TMP(PW_1) createModels]
 
@@ -55,13 +57,18 @@ proc makeASphere {x y z} {
 
 }
 
-proc makeSphereMesh { } {
+proc makeSphereMesh {sep ang diam far} {
+
+    set radius [expr $diam/2.]
+    set separation [expr $diam*$sep]
+    set farf [expr $far]
 
     #=======================================
+
     defaults
 
-    makeASphere 0 0 0
-    makeASphere 2.1 0 0
+    makeASphere 0 0 0 $radius
+    makeASphere $separation 0 0 $radius
 
     #=======================================
 
@@ -101,6 +108,10 @@ proc makeSphereMesh { } {
     #set far-field
     #
 
+    set dim_x [expr 2*$diam*$far]
+    set dim_y [expr 2*$diam*$far]
+    set dim_z [expr 2*$diam*$far]
+
     set _TMP(mode_1) [pw::Application begin Modify [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8]]
     set _TMP(PW_1) [pw::GridShape create]
     set _TMP(PW_2) [pw::TRexCondition create]
@@ -114,9 +125,9 @@ proc makeSphereMesh { } {
     $_TMP(PW_2) setAdaptation On
     unset _TMP(PW_2)
     pw::Display resetView -Z
-    $_TMP(PW_1) box -width 14 -height 13.9989724324 -length 17
+    $_TMP(PW_1) box -width $dim_z -height $dim_y -length $dim_x
     $_TMP(PW_1) setGridType Unstructured
-    $_TMP(PW_1) setTransform [list 0 1 0 0 0 0 1 0 1 0 0 0 -7 0 0 1]
+    $_TMP(PW_1) setTransform [list 0 1 0 0 0 0 1 0 1 0 0 0 [expr -($far-$sep*0.5:q)] 0 0 1]
     $_TMP(PW_1) setSectionQuadrants 4
     $_TMP(PW_1) setIncludeEnclosingEntitiesInBlock 1
     $_TMP(PW_1) setGridBoundary FromSizeField
@@ -280,7 +291,7 @@ proc makeSphereMesh { } {
     #
 
     #
-    # set shell name
+    # set shell 1 name
     #
 
     set _TMP(PW_1) [pw::BoundaryCondition getByName Unspecified]
@@ -289,10 +300,33 @@ proc makeSphereMesh { } {
 
     set _TMP(PW_3) [pw::BoundaryCondition getByName bc-2]
     #unset _TMP(PW_2)
-    $_TMP(PW_3) apply [list [list $blk_1 $face_1] [list $blk_1 $face_3] [list $blk_1 $face_5] [list $blk_1 $face_2] [list $blk_1 $face_4] [list $blk_1 $face_7] [list $blk_1 $face_6] [list $blk_1 $face_8]]
+    $_TMP(PW_3) apply [list [list $blk_1 $face_1] [list $blk_1 $face_2] [list $blk_1 $face_3] [list $blk_1 $face_4]]
     pw::Application markUndoLevel {Set BC}
 
-    $_TMP(PW_3) setName shell
+    $_TMP(PW_3) setName shell1
+    pw::Application markUndoLevel {Name BC}
+
+    $_TMP(PW_3) setPhysicalType -usage CAE Wall
+    pw::Application markUndoLevel {Change BC Type}
+
+    unset _TMP(PW_1)
+    unset _TMP(PW_2)
+    unset _TMP(PW_3)
+
+    #
+    # set shell 2 name
+    #
+
+    set _TMP(PW_1) [pw::BoundaryCondition getByName Unspecified]
+    set _TMP(PW_2) [pw::BoundaryCondition create]
+    pw::Application markUndoLevel {Create BC}
+
+    set _TMP(PW_3) [pw::BoundaryCondition getByName bc-3]
+    #unset _TMP(PW_2)
+    $_TMP(PW_3) apply [list [list $blk_1 $face_5] [list $blk_1 $face_6] [list $blk_1 $face_7] [list $blk_1 $face_8]]
+    pw::Application markUndoLevel {Set BC}
+
+    $_TMP(PW_3) setName shell2
     pw::Application markUndoLevel {Name BC}
 
     $_TMP(PW_3) setPhysicalType -usage CAE Wall
@@ -310,7 +344,7 @@ proc makeSphereMesh { } {
     set _TMP(PW_2) [pw::BoundaryCondition create]
     pw::Application markUndoLevel {Create BC}
 
-    set _TMP(PW_4) [pw::BoundaryCondition getByName bc-3]
+    set _TMP(PW_4) [pw::BoundaryCondition getByName bc-4]
     $_TMP(PW_4) apply [list [list $blk_1 $face_9] [list $blk_1 $face_14] [list $blk_1 $face_11] [list $blk_1 $face_12] [list $blk_1 $face_13] [list $blk_1 $face_10]]
     pw::Application markUndoLevel {Set BC}
 
@@ -327,104 +361,46 @@ proc makeSphereMesh { } {
     #=======================================
 
     #
+    #export su2 file
+    #
+
+    pw::Application setCAESolver {SU2} 3
+    pw::Application markUndoLevel {Select Solver}
+
+    set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
+
+    set dirsave [pwd]
+    puts $dirsave
+    $_TMP(mode_1) initialize -strict -type CAE "$dirsave/mesh_sphere.su2"
+    $_TMP(mode_1) setAttribute FilePrecision Double
+    $_TMP(mode_1) verify
+    $_TMP(mode_1) write
+    $_TMP(mode_1) end
+    unset _TMP(mode_1)
+
+    #
     #export cgns file
     #
 
-if 0 {
-    # Write the FFD data to a file named ffd.su2
-    #proc ExportMesh {} {
+    pw::Application setCAESolver {CGNS} 3
+    pw::Application markUndoLevel {Select Solver}
 
-    #set dimension [GetDimension]
-    set dimension [pw::Application getCAESolverDimension]
+    set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
 
-    set cwd      [file dirname [info script]]
-    set filename "$cwd/mesh_test.su2"
-    set f        [open $filename w]
-    set boxes    [GetExportFFDBoxes]
-    set id       0
-
-    puts $f "FFD_NBOX= [llength $boxes]"
-    puts $f "FFD_NLEVEL= 1"
-
-    foreach box $boxes
-    {
-
-        set boxAttributes [GetFFDBoxAttributes $box]
-        set ffdDegree     [lindex $boxAttributes 0]
-        set cornerPoints  [lindex $boxAttributes 1]
-
-        if {$dimension == 2} {
-
-            set ideg [lindex $ffdDegree 0]
-            set jdeg [lindex $ffdDegree 1]
-
-            set pt1  [lindex $cornerPoints 0]
-            set pt2  [lindex $cornerPoints 1]
-            set pt3  [lindex $cornerPoints 2]
-            set pt4  [lindex $cornerPoints 3]
-
-            puts $f "FFD_TAG= $id"
-            puts $f "FFD_LEVEL= 0"
-            puts $f "FFD_DEGREE_I= $ideg"
-            puts $f "FFD_DEGREE_J= $jdeg"
-            puts $f "FFD_PARENTS= 0"
-            puts $f "FFD_CHILDREN= 0"
-            puts $f "FFD_CORNER_POINTS=4"
-            puts $f "$pt1"
-            puts $f "$pt2"
-            puts $f "$pt3"
-            puts $f "$pt4"
-            puts $f "FFD_CONTROL_POINTS=0"
-            puts $f "FFD_SURFACE_POINTS=0"
-            incr id
-
-        } else {
-
-            set ideg [lindex $ffdDegree 0]
-            set jdeg [lindex $ffdDegree 1]
-            set kdeg [lindex $ffdDegree 2]
-
-            set pt1  [lindex $cornerPoints 0]
-            set pt2  [lindex $cornerPoints 1]
-            set pt3  [lindex $cornerPoints 2]
-            set pt4  [lindex $cornerPoints 3]
-            set pt5  [lindex $cornerPoints 4]
-            set pt6  [lindex $cornerPoints 5]
-            set pt7  [lindex $cornerPoints 6]
-            set pt8  [lindex $cornerPoints 7]
-
-            puts $f "FFD_TAG= $id"
-            puts $f "FFD_LEVEL= 0"
-            puts $f "FFD_DEGREE_I= $ideg"
-            puts $f "FFD_DEGREE_J= $jdeg"
-            puts $f "FFD_DEGREE_K= $kdeg"
-            puts $f "FFD_PARENTS= 0"
-            puts $f "FFD_CHILDREN= 0"
-            puts $f "FFD_CORNER_POINTS=8"
-            puts $f "$pt1"
-            puts $f "$pt2"
-            puts $f "$pt3"
-            puts $f "$pt4"
-            puts $f "$pt5"
-            puts $f "$pt6"
-            puts $f "$pt7"
-            puts $f "$pt8"
-            puts $f "FFD_CONTROL_POINTS=0"
-            puts $f "FFD_SURFACE_POINTS=0"
-            incr id
-
-        }
-
-    }
-
-    close $f
-
-    }
-}
-
+    set dirsave [pwd]
+    puts $dirsave
+    $_TMP(mode_1) initialize -strict -type CAE "$dirsave/mesh_sphere.cgns"
+    $_TMP(mode_1) setAttribute FilePrecision Double
+    $_TMP(mode_1) verify
+    $_TMP(mode_1) write
+    $_TMP(mode_1) end
+    unset _TMP(mode_1)
 
 }
 
+set separation [lindex $argv 0]
+set angle [lindex $argv 1]
+set diameter [lindex $argv 2]
+set far [lindex $argv 3]
 
-makeSphereMesh
-
+makeSphereMesh $separation $angle $diameter $far
