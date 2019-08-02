@@ -3,8 +3,8 @@
 # setup: make sure to set your alias
 #           alias pointwise='/path/to/pointwise'
 #
-# usage: pointwise -b <*.glf> <sep/diameter> <angle> <unit diameter> <far/diameter>
-# example: pointwise spheres2.glf -b 1.1 0 1 8
+# usage: pointwise -b <*.glf> <unit diameter> <far/diameter>
+#
 #
 
 package require PWI_Glyph
@@ -66,18 +66,16 @@ proc makeASphere {x y z r} {
 
 }
 
-proc makeSphereMesh {sep ang diam far} {
+proc makeSphereMesh {diam far} {
 
     set radius [expr $diam/2.]
-    set separation [expr $diam*$sep]
-    set farf [expr $far]
 
     #=======================================
 
     defaults
 
     makeASphere 0 0 0 $radius
-    makeASphere $separation 0 0 $radius
+    #makeASphere $separation 0 0 $radius
 
     #=======================================
 
@@ -96,6 +94,7 @@ proc makeSphereMesh {sep ang diam far} {
     set face_3 [pw::GridEntity getByName "dom-3"]
     set face_4 [pw::GridEntity getByName "dom-4"]
 
+if 0 {
     #
     #get quilts 2
     #
@@ -110,7 +109,7 @@ proc makeSphereMesh {sep ang diam far} {
     set face_6 [pw::GridEntity getByName "dom-6"]
     set face_7 [pw::GridEntity getByName "dom-7"]
     set face_8 [pw::GridEntity getByName "dom-8"]
-
+}
     #=======================================
 
     #
@@ -121,7 +120,8 @@ proc makeSphereMesh {sep ang diam far} {
     set dim_y [expr 2*$diam*$far]
     set dim_z [expr 2*$diam*$far]
 
-    set _TMP(mode_1) [pw::Application begin Modify [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8]]
+    #set _TMP(mode_1) [pw::Application begin Modify [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8]]
+    set _TMP(mode_1) [pw::Application begin Modify [list $face_1 $face_2 $face_3 $face_4]]
     set _TMP(PW_1) [pw::GridShape create]
     set _TMP(PW_2) [pw::TRexCondition create]
     $_TMP(PW_2) setConditionType Match
@@ -136,15 +136,17 @@ proc makeSphereMesh {sep ang diam far} {
     pw::Display resetView -Z
     $_TMP(PW_1) box -width $dim_z -height $dim_y -length $dim_x
     $_TMP(PW_1) setGridType Unstructured
-    $_TMP(PW_1) setTransform [list 0 1 0 0 0 0 1 0 1 0 0 0 [expr -($far-$sep*0.5)] 0 0 1]
+    $_TMP(PW_1) setTransform [list 0 1 0 0 0 0 1 0 1 0 0 0 -$far 0 0 1]
     $_TMP(PW_1) setSectionQuadrants 4
     $_TMP(PW_1) setIncludeEnclosingEntitiesInBlock 1
     $_TMP(PW_1) setGridBoundary FromSizeField
     $_TMP(PW_1) setSizeFieldDecay [pw::GridEntity getDefault SizeFieldDecay]
     $_TMP(PW_1) setSizeFieldBackgroundSpacing 0.5
-    $_TMP(PW_1) setEnclosingEntities [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8]
+    #$_TMP(PW_1) setEnclosingEntities [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8]
+    $_TMP(PW_1) setEnclosingEntities [list $face_1 $face_2 $face_3 $face_4]
     $_TMP(PW_1) clearSizeFieldEntities
-    $_TMP(PW_1) includeSizeFieldEntity [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8] true
+    #$_TMP(PW_1) includeSizeFieldEntity [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8] true
+    $_TMP(PW_1) includeSizeFieldEntity [list $face_1 $face_2 $face_3 $face_4] true
     $_TMP(PW_1) updateGridEntities -updateBlockAttributes
 
     set _TMP(blocks) [$_TMP(PW_1) getGridEntities -type pw::Block]
@@ -182,13 +184,20 @@ proc makeSphereMesh {sep ang diam far} {
     #
     #get far-field surfaces
     #
-
+if 0 {
     set face_9 [pw::GridEntity getByName "dom-9"]
     set face_10 [pw::GridEntity getByName "dom-10"]
     set face_11 [pw::GridEntity getByName "dom-11"]
     set face_12 [pw::GridEntity getByName "dom-12"]
     set face_13 [pw::GridEntity getByName "dom-13"]
     set face_14 [pw::GridEntity getByName "dom-14"]
+}
+    set face_9 [pw::GridEntity getByName "dom-5"]
+    set face_10 [pw::GridEntity getByName "dom-6"]
+    set face_11 [pw::GridEntity getByName "dom-7"]
+    set face_12 [pw::GridEntity getByName "dom-8"]
+    set face_13 [pw::GridEntity getByName "dom-9"]
+    set face_14 [pw::GridEntity getByName "dom-10"]
 
     #
     #visualization settings
@@ -200,6 +209,7 @@ proc makeSphereMesh {sep ang diam far} {
     unset _TMP(PW_1)
     pw::Application markUndoLevel {Modify Entity Display}
 
+if 0 {
     #
     #sphere shell settings
     #
@@ -221,7 +231,7 @@ proc makeSphereMesh {sep ang diam far} {
     $_TMP(PW_1) delete
     unset _TMP(PW_1)
     pw::Application markUndoLevel {Modify Entity Display}
-
+}
     #=======================================
 
     #
@@ -244,7 +254,8 @@ proc makeSphereMesh {sep ang diam far} {
     set _TMP(PW_5) [pw::TRexCondition getByName {bc-4}]
     unset _TMP(PW_4)
 
-    $_TMP(PW_5) apply [list [list $blk_1 $face_1 Opposite] [list $blk_1 $face_2 Opposite] [list $blk_1 $face_3 Opposite] [list $blk_1 $face_4 Opposite] [list $blk_1 $face_5 Opposite] [list $blk_1 $face_6 Opposite] [list $blk_1 $face_7 Opposite] [list $blk_1 $face_8 Opposite]]
+    $_TMP(PW_5) apply [list [list $blk_1 $face_1 Opposite] [list $blk_1 $face_2 Opposite] [list $blk_1 $face_3 Opposite] [list $blk_1 $face_4 Opposite]]
+    #$_TMP(PW_5) apply [list [list $blk_1 $face_1 Opposite] [list $blk_1 $face_2 Opposite] [list $blk_1 $face_3 Opposite] [list $blk_1 $face_4 Opposite] [list $blk_1 $face_5 Opposite] [list $blk_1 $face_6 Opposite] [list $blk_1 $face_7 Opposite] [list $blk_1 $face_8 Opposite]]
     #$_TMP(PW_5) apply [list [list $blk_1 $face_4 Opposite] [list $blk_1 $face_5 Opposite] [list $blk_1 $face_6 Opposite] [list $blk_1 $face_7 Opposite] [list $blk_1 $face_11 Opposite] [list $blk_1 $face_12 Opposite] [list $blk_1 $face_13 Opposite] [list $blk_1 $face_14 Opposite]]
     $_TMP(PW_5) setConditionType {Wall}
 
@@ -322,6 +333,7 @@ proc makeSphereMesh {sep ang diam far} {
     unset _TMP(PW_2)
     unset _TMP(PW_3)
 
+if 0 {
     #
     # set shell 2 name
     #
@@ -344,7 +356,7 @@ proc makeSphereMesh {sep ang diam far} {
     unset _TMP(PW_1)
     unset _TMP(PW_2)
     unset _TMP(PW_3)
-
+}
     #
     # set far-field name
     #
@@ -353,7 +365,7 @@ proc makeSphereMesh {sep ang diam far} {
     set _TMP(PW_2) [pw::BoundaryCondition create]
     pw::Application markUndoLevel {Create BC}
 
-    set _TMP(PW_4) [pw::BoundaryCondition getByName bc-4]
+    set _TMP(PW_4) [pw::BoundaryCondition getByName bc-3]
     $_TMP(PW_4) apply [list [list $blk_1 $face_9] [list $blk_1 $face_14] [list $blk_1 $face_11] [list $blk_1 $face_12] [list $blk_1 $face_13] [list $blk_1 $face_10]]
     pw::Application markUndoLevel {Set BC}
 
@@ -376,7 +388,9 @@ proc makeSphereMesh {sep ang diam far} {
     pw::Application setCAESolver {SU2} 3
     pw::Application markUndoLevel {Select Solver}
 
-    set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
+
+    set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
+    #set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
 
     set dirsave [pwd]
     puts $dirsave
@@ -394,7 +408,8 @@ proc makeSphereMesh {sep ang diam far} {
     pw::Application setCAESolver {CGNS} 3
     pw::Application markUndoLevel {Select Solver}
 
-    set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
+    set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
+    #set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
 
     set dirsave [pwd]
     puts $dirsave
@@ -407,9 +422,7 @@ proc makeSphereMesh {sep ang diam far} {
 
 }
 
-set separation [lindex $argv 0]
-set angle [lindex $argv 1]
-set diameter [lindex $argv 2]
-set far [lindex $argv 3]
+set diameter [lindex $argv 0]
+set far [lindex $argv 1]
 
-makeSphereMesh $separation $angle $diameter $far
+makeSphereMesh $diameter $far
