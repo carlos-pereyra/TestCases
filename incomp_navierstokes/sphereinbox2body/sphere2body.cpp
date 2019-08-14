@@ -15,7 +15,7 @@
 #include <gmsh.h>
 using namespace std;
 //SPHERICAL REFINEMENT
-#define ELEM_SIZE 0.03
+#define ELEM_SIZE 0.05
 #define GROWTH 1
 //ENABLE
 #define FAR 1
@@ -391,8 +391,8 @@ int main(int argc, char **argv)
     gmsh::model::add("sphere1");
     
     //create sphere
-    sphereMesh(x1,y1,z1,r1,l,lc,surfaces,volumes,1,sep);
-    sphereMesh(x2,y2,z2,r1,l,lc,surfaces,volumes,2,sep);
+    sphereMesh(x1,y1,0,r1,l,lc,surfaces,volumes,1,sep);
+    sphereMesh(x2,y2,0,r1,l,lc,surfaces,volumes,2,sep);
     
     if (FAR == 1) {
         //ELEMENTS
@@ -435,23 +435,23 @@ int main(int argc, char **argv)
         
         surfacetags.push_back({2,s8}); //side 1
         geo::copy({{2, s8}}, ov);
-        geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(10,2)+pow(10,2)),0,0 , M_PI/2 );
+        geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(20,2)+pow(20,2)),0,0 , M_PI/2 );
         
         geo::copy({{2, ov.back().second}}, ov);
-        geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(10,2)+pow(10,2)),0,0 , M_PI/2 );
+        geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(20,2)+pow(20,2)),0,0 , M_PI/2 );
         surfacetags.push_back({2,ov.back().second}); //side 3
         
         geo::copy({{2, ov.back().second}}, ov);
-        geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(10,2)+pow(10,2)),0,0 , M_PI/2 );
+        geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(20,2)+pow(20,2)),0,0 , M_PI/2 );
         surfacetags.push_back({2,ov.back().second}); //side 3
         
         geo::copy({{2,ov.back().second}}, ov);
-        geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(10,2)+pow(10,2)),0,0 , M_PI/2 );
+        geo::rotate({{2,ov.back().second}}, x1-sep/2,0,0 , sqrt(pow(20,2)+pow(20,2)),0,0 , M_PI/2 );
         surfacetags.push_back({2,ov.back().second}); //side 4
         
         geo::copy({{2, s8}}, ovv);
         surfacetags.push_back({2,ovv.back().second}); //side 5
-        geo::rotate( {{2,ovv.back().second}}, x1-sep/2,0,0 , 0,sqrt(pow(10,2)+pow(10,2)),0 , M_PI/2 );
+        geo::rotate( {{2,ovv.back().second}}, x1-sep/2,0,0 , 0,sqrt(pow(20,2)+pow(20,2)),0 , M_PI/2 );
         
         geo::copy({{2, s8}}, ovvv);
         surfacetags.push_back({2,ovvv.back().second}); //side 6
@@ -643,8 +643,8 @@ int main(int argc, char **argv)
     //gmsh::model::mesh::recombine("sphere1");
     
     // OUTPUT
-    //gmsh::write("msh/spherical.cgns");
-    //gmsh::write("mesh_sphere.msh");
+    //gmsh::write("mesh_sphere.cgns");
+    gmsh::write("mesh_sphere.unv");
     gmsh::write("mesh_sphere.su2");
     gmsh::write("mesh_sphere.vtk");
     //gmsh::view::add("test");
