@@ -11,27 +11,44 @@
 package require PWI_Glyph
 package require PWI_Glyph 2
 
-proc defaults { } {
+proc defaults { radius farlength sp numLayers maxLayers } {
     #
     #set defaults
     #
+    #set sp 0.0005
+    #set layers 1
+    set r $radius
+    set deltaY [expr $farlength-$r]
+    set deltaS $sp
+
+    #set numLayers [expr $deltaY/$deltaS]
 
     #pw::Connector setDefault Dimension 50
     pw::Connector setCalculateDimensionMethod Spacing
-    pw::Connector setCalculateDimensionSpacing 0.000500000000000000
+    #pw::Connector setCalculateDimensionSpacing 0.000500000000000000
+    pw::Connector setCalculateDimensionSpacing $deltaS
     pw::Application setGridPreference Unstructured
+    #DOMAIN SETTINGS
     pw::DomainUnstructured setDefault Algorithm AdvancingFrontOrtho
     #pw::DomainUnstructured setDefault Algorithm Delaunay
     pw::DomainUnstructured setDefault IsoCellType TriangleQuad
-    pw::DomainUnstructured setDefault TRexGrowthRate 1.1000000000000001
-    pw::DomainUnstructured setDefault TRexMaximumLayers 15
-    pw::DomainUnstructured setDefault TRexFullLayers 1
+    # TriangleQuad
+    pw::DomainUnstructured setDefault TRexGrowthRate 1
+    pw::DomainUnstructured setDefault TRexMaximumLayers $maxLayers
+    pw::DomainUnstructured setDefault TRexFullLayers $numLayers
     pw::DomainUnstructured setDefault QuadMaximumIncludedAngle 170
-    pw::BlockUnstructured setDefault TRexMaximumLayers 25
-    pw::BlockUnstructured setDefault TRexFullLayers 1
-    pw::BlockUnstructured setDefault TRexGrowthRate 1.1000000000000001
+    #BLOCK SETTINGS
+    pw::BlockUnstructured setDefault TRexMaximumLayers $maxLayers
+    pw::BlockUnstructured setDefault TRexFullLayers $numLayers
+    pw::BlockUnstructured setDefault TRexGrowthRate 1
     pw::BlockUnstructured setDefault TRexCollisionBuffer 3
-    pw::BlockUnstructured setDefault TRexSkewCriteriaMaximumAngle 170
+    pw::BlockUnstructured setDefault TRexSkewCriteriaMaximumAngle 175
+    pw::BlockUnstructured setDefault TRexAnisotropicIsotropicBlend 0
+    pw::BlockUnstructured setDefault TRexIsotropicSeedLayers 5
+    pw::BlockUnstructured setDefault TRexIsotropicHeight 1
+    #pw::BlockUnstructured setDefault TRexCellType TetPyramid
+    #GRID SETTINGS
+    pw::GridEntity setDefault SizeFieldCalculationMethod BlendDistance
 
 }
 
@@ -67,15 +84,23 @@ proc makeASphere {x y z r} {
 
 }
 
-proc makeSphereMesh {diam far bsp} {
-
+proc makeSphereMesh {diam far sp bsp} {
+    set x 0
+    set y 0
+    set z 0
+    set growth 1.05
     set radius [expr $diam/2.]
-
+    set deltaY [expr $far-$radius]
+    set deltaS $sp
+    set maxLayers 200
+    #set numLayers [expr {round($deltaY/$deltaS)}]
+    set numLayers 100
+    puts "how many layers are there? $numLayers"
     #=======================================
 
-    defaults
-
-    makeASphere 0 0 0 $radius
+    defaults $radius $far $sp $numLayers $maxLayers
+    #layers
+    makeASphere $x $y $z $radius
     #makeASphere $separation 0 0 $radius
 
     #=======================================
@@ -121,7 +146,6 @@ if 0 {
     set dim_y [expr 2*$far]
     set dim_z [expr 2*$far]
 
-    #set _TMP(mode_1) [pw::Application begin Modify [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8]]
     set _TMP(mode_1) [pw::Application begin Modify [list $face_1 $face_2 $face_3 $face_4]]
     set _TMP(PW_1) [pw::GridShape create]
     set _TMP(PW_2) [pw::TRexCondition create]
@@ -135,18 +159,19 @@ if 0 {
     $_TMP(PW_2) setAdaptation On
     unset _TMP(PW_2)
     pw::Display resetView -Z
-    $_TMP(PW_1) box -width $dim_z -height $dim_y -length $dim_x
+    $_TMP(PW_1) sphere -radius $dim_z -baseAngle 0 -topAngle 180
+    #$_TMP(PW_1) box -width $dim_z -height $dim_y -length $dim_x
     $_TMP(PW_1) setGridType Unstructured
-    $_TMP(PW_1) setTransform [list 0 1 0 0 0 0 1 0 1 0 0 0 -$far 0 0 1]
+    $_TMP(PW_1) setTransform [list 0 1 0 0 0 0 1 0 1 0 0 0 [expr -$dim_z] $y $z 1]
     $_TMP(PW_1) setSectionQuadrants 4
     $_TMP(PW_1) setIncludeEnclosingEntitiesInBlock 1
     $_TMP(PW_1) setGridBoundary FromSizeField
     $_TMP(PW_1) setSizeFieldDecay [pw::GridEntity getDefault SizeFieldDecay]
+    set spacing [expr $sp*$numLayers*$growth]
     $_TMP(PW_1) setSizeFieldBackgroundSpacing $bsp
-    #$_TMP(PW_1) setEnclosingEntities [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8]
+    #$bsp
     $_TMP(PW_1) setEnclosingEntities [list $face_1 $face_2 $face_3 $face_4]
     $_TMP(PW_1) clearSizeFieldEntities
-    #$_TMP(PW_1) includeSizeFieldEntity [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8] true
     $_TMP(PW_1) includeSizeFieldEntity [list $face_1 $face_2 $face_3 $face_4] true
     $_TMP(PW_1) updateGridEntities -updateBlockAttributes
 
@@ -155,9 +180,9 @@ if 0 {
     $_TMP(blockCollection) set $_TMP(blocks)
 
     $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexPushAttributes 1
-    $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexMaximumLayers 20
-    $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexFullLayers 1
-    $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexGrowthRate 1.1000000000000001
+    $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexMaximumLayers $maxLayers
+    $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexFullLayers $numLayers
+    $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexGrowthRate $growth
     set _TMP(bc) [pw::TRexCondition getByName BuildBlocksMatch]
     set _TMP(doms) [$_TMP(PW_1) getBlockRegisters Symmetry]
     $_TMP(bc) apply $_TMP(doms)
@@ -203,36 +228,13 @@ if 0 {
     #
     #visualization settings
     #
-    set _TMP(PW_1) [pw::Collection create]
-    $_TMP(PW_1) set [list $face_10 $face_11 $face_12 $face_13 $face_14]
-    $_TMP(PW_1) do setRenderAttribute LineMode Boundary
-    $_TMP(PW_1) delete
-    unset _TMP(PW_1)
-    pw::Application markUndoLevel {Modify Entity Display}
+    #set _TMP(PW_1) [pw::Collection create]
+    #$_TMP(PW_1) set [list $face_10 $face_11 $face_12 $face_13 $face_14]
+    #$_TMP(PW_1) do setRenderAttribute LineMode Boundary
+    #$_TMP(PW_1) delete
+    #unset _TMP(PW_1)
+    #pw::Application markUndoLevel {Modify Entity Display}
 
-if 0 {
-    #
-    #sphere shell settings
-    #
-    set _TMP(PW_1) [pw::Collection create]
-    $_TMP(PW_1) set [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8]
-    $_TMP(PW_1) do setRenderAttribute FillMode Shaded
-    $_TMP(PW_1) delete
-    unset _TMP(PW_1)
-    pw::Application markUndoLevel {Modify Entity Display}
-
-    set _TMP(PW_1) [pw::Collection create]
-    $_TMP(PW_1) set [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8]
-    $_TMP(PW_1) do setRenderAttribute ColorMode Entity
-    $_TMP(PW_1) delete
-    unset _TMP(PW_1)
-    set _TMP(PW_1) [pw::Collection create]
-    $_TMP(PW_1) set [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8]
-    $_TMP(PW_1) do setColor 0x0031b5d7
-    $_TMP(PW_1) delete
-    unset _TMP(PW_1)
-    pw::Application markUndoLevel {Modify Entity Display}
-}
     #=======================================
 
     #
@@ -256,27 +258,13 @@ if 0 {
     unset _TMP(PW_4)
 
     $_TMP(PW_5) apply [list [list $blk_1 $face_1 Opposite] [list $blk_1 $face_2 Opposite] [list $blk_1 $face_3 Opposite] [list $blk_1 $face_4 Opposite]]
-    #$_TMP(PW_5) apply [list [list $blk_1 $face_1 Opposite] [list $blk_1 $face_2 Opposite] [list $blk_1 $face_3 Opposite] [list $blk_1 $face_4 Opposite] [list $blk_1 $face_5 Opposite] [list $blk_1 $face_6 Opposite] [list $blk_1 $face_7 Opposite] [list $blk_1 $face_8 Opposite]]
-    #$_TMP(PW_5) apply [list [list $blk_1 $face_4 Opposite] [list $blk_1 $face_5 Opposite] [list $blk_1 $face_6 Opposite] [list $blk_1 $face_7 Opposite] [list $blk_1 $face_11 Opposite] [list $blk_1 $face_12 Opposite] [list $blk_1 $face_13 Opposite] [list $blk_1 $face_14 Opposite]]
     $_TMP(PW_5) setConditionType {Wall}
-
-    # Apply boundary condition bc-4 to 8 domains
-
-    #set _TMP(PW_6) [pw::TRexCondition create]
-    #set _TMP(PW_7) [pw::TRexCondition getByName {bc-5}]
-    #unset _TMP(PW_6)
-    #$_TMP(PW_7) apply [list [list $blk_1 $face_9 Opposite] [list $blk_1 $face_10 Same] [list $blk_1 $face_11 Same] [list $blk_1 $face_12 Same] [list $blk_1 $face_13 Same] [list $blk_1 $face_14 Same]]
-    #$_TMP(PW_7) apply [list [list $blk_1 $face_10 Opposite] [list $blk_1 $face_1 Same] [list $blk_1 $face_3 Same] [list $blk_1 $face_1 Same] [list $blk_1 $face_9 Same] [list $blk_1 $face_8 Same]]
-
-    # Apply boundary condition bc-5 to 6 domains.
-
-    #$_TMP(PW_7) setConditionType {Match}
 
     #
     # run
     #
 
-    $_TMP(mode_1) setStopWhenFullLayersNotMet true
+    $_TMP(mode_1) setStopWhenFullLayersNotMet false
     $_TMP(mode_1) setAllowIncomplete true
     $_TMP(mode_1) run Initialize
 
@@ -427,7 +415,6 @@ unset _TMP(PW_7)
 
 
     set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
-    #set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
 
     set dirsave [pwd]
     puts $dirsave
@@ -446,7 +433,6 @@ unset _TMP(PW_7)
     pw::Application markUndoLevel {Select Solver}
 
     set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
-    #set _TMP(mode_1) [pw::Application begin CaeExport [pw::Entity sort [list $blk_1 $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8 $face_9 $face_10 $face_11 $face_12 $face_13 $face_14]]]
 
     set dirsave [pwd]
     puts $dirsave
@@ -461,6 +447,8 @@ unset _TMP(PW_7)
 
 set diameter [lindex $argv 0]
 set far [lindex $argv 1]
+set sp [lindex $argv 2]
+set bsp [lindex $argv 3]
 
-makeSphereMesh $diameter $far
-#makeSphereMesh 0.01 0.3
+makeSphereMesh $diameter $far $sp $bsp
+#makeSphereMesh 1 7 .05 .4
