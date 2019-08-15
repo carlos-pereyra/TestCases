@@ -9,14 +9,15 @@ import os,sys,argparse,imp
 parser= argparse.ArgumentParser(prog='simResults.py', description='Process simulation CL,CD,CSF results.')
 parser.add_argument('--dir',dest='dirname',action='store',help='mesh file directory to use (relative to working directory)')
 parser.add_argument('--sys',dest='system',action='store',help='system name on cluster')
+parser.add_argument('--sp',dest='spacing',action='store',help='grid spacing length')
 parser.add_argument('-d',dest='diameter',action='store',help='sphere diameter')
 parser.add_argument('-l',dest='length',action='store',help='far-field length (size of far-field)')
 parser.add_argument('-s',dest='separation',action='store',help='sep (0 for single sphere)')
 parser.add_argument('-a',dest='angle',action='store',help='angle (0 for single sphere)')
 args = parser.parse_args()
 
-if not args.dirname and not args.system:
-	print ("Error: please provide --dir <make directory> --sys <las>")
+if not args.dirname and not args.system and not args.spacing:
+	print ("Error: please provide --dir <make directory> --sys <las> --sp <0.0002>")
 	exit()
 
 #variables
@@ -25,9 +26,10 @@ length= args.length
 separation= args.separation
 angle= args.angle
 dirpath= args.dirname
+sp= args.spacing
 
 #check if storage path already exists
-storage_path= dirpath+"/dia_"+diameter+"_len_"+length+"_sep_"+separation+"_ang_"+angle+"/"
+storage_path= dirpath+"/sp_"+sp+"_dia_"+diameter+"_len_"+length+"_sep_"+separation+"_ang_"+angle+"/"
 path_exists_bool= os.path.exists(storage_path)
 
 if path_exists_bool is not True:
@@ -38,7 +40,7 @@ os.chdir(storage_path)
 if args.system=="cata":
 	with open("slurm",'w') as slurmfile:
 		slurmfile.write("#!/bin/bash\n")
-		jobname="D"+diameter+"F"+length+"S"+separation+"A"+angle
+		jobname="SP_"+sp+"_D_"+diameter+"_L_"+length+"_S_"+separation+"_A_"+angle
 		slurmfile.write("#SBATCH --job-name={}\n".format(jobname))
 		slurmfile.write("#SBATCH -N 1\n")
 		slurmfile.write("#SBATCH -n 24\n")
@@ -56,7 +58,7 @@ if args.system=="cata":
 if args.system=="las":
 	with open("lsf",'w') as lsf:
 		lsf.write("#!/bin/tcsh\n")
-		jobname="S"+separation+"A"+angle+"D"+diameter+"F"+length
+		jobname="SP"+sp+"S"+separation+"A"+angle+"D"+diameter+"F"+length
 		lsf.write("#BSUB -J {}\n".format(jobname))
 		lsf.write("#BSUB -nnodes 4\n")
     		lsf.write("#BSUB -q pdebug\n")

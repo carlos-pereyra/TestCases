@@ -3,16 +3,29 @@ from ROOT import TTree,TFile,gROOT,gStyle,gPad
 from ROOT import TCanvas,TGraph,TPad,TBrowser
 from ROOT import TLegend,kAurora,kRainBow,kRust,kFall
 from ROOT import TPaveText,TStyle,TMultiGraph
-
 import numpy as np
+import argparse
 
-x_label='Iteration'
-y_label='CL'
+#user input
+parser = argparse.ArgumentParser(description='Process simulation data')
+parser.add_argument('-x', dest='xaxis', action='store', help='x-axis (on plot)')
+parser.add_argument('-y', dest='yaxis', action='store', help='y-axis (on plot)')
+args = parser.parse_args()
+
+if not args.xaxis and not args.yaxis:
+        print("Error: provide -x <xaxis> and -y <yaxis>\n")
+        print("Choices: [Iteration] [CL] [CD] [CSF]")
+        exit()
+
+#set axis
+x_label=args.xaxis
+y_label=args.yaxis
+
 tree=TTree("tree", "my tree")
 datafile=tree.ReadFile("history.csv","Iteration:CL:CD:CSF",',')
 
 #Canvas 1
-c1=TCanvas("c", "canvas 1", 600, 800)
+c1=TCanvas("c", "canvas 1", 800, 800)
 c1.GetFrame().SetBorderMode(0);
 c1.GetFrame().SetBorderMode(0);
 c1.GetFrame().SetBorderSize(0);
