@@ -12,6 +12,7 @@ parser.add_argument('-d',dest='diameter',action='store',help='sphere diameter')
 parser.add_argument('-l',dest='length',action='store',help='far-field length (size of far-field)')
 parser.add_argument('-s',dest='separation',action='store',help='sep (0 for single sphere)')
 parser.add_argument('-a',dest='angle',action='store',help='angle (0 for single sphere)')
+parser.add_argument('--sp',dest='spacing',action='store',help='spacing length')
 args = parser.parse_args()
 
 path= args.dirname
@@ -19,12 +20,17 @@ diameter= args.diameter
 length= args.length
 separation= args.separation
 angle= args.angle
+sp= args.spacing
 
-if path is None:
-	print ("please provide arguments")
+if path is None and sp is None:
+	print ("please provide arguments --dir and --sp")
 	exit()
 
-storage_path= path+"/dia_"+diameter+"_len_"+length+"_sep_"+separation+"_ang_"+angle+"/"
+if separation is None and angle is None:
+	separation= str(0)
+	angle= str(0)
+
+storage_path= path+"/sp_"+sp+"_dia_"+diameter+"_len_"+length+"_sep_"+separation+"_ang_"+angle+"/"
 path_exists_bool= os.path.exists(storage_path)
 
 if path_exists_bool is not True:
@@ -34,10 +40,10 @@ os.chdir(storage_path)
 
 with open("slurm",'w') as slurmfile:
 	slurmfile.write("#!/bin/bash\n")
-	jobname="D"+diameter+"F"+length+"S"+separation+"A"+angle
+	jobname="SP"+sp+"D"+diameter+"F"+length+"S"+separation+"A"+angle
 	slurmfile.write("#SBATCH --job-name={}\n".format(jobname))
-	slurmfile.write("#SBATCH -N 1\n")
-	slurmfile.write("#SBATCH -n 24\n")
+	slurmfile.write("#SBATCH -N 2\n")
+	#slurmfile.write("#SBATCH -n 24\n")
 	slurmfile.write("#SBATCH -p pbatch\n")
 	slurmfile.write("#SBATCH -A ppims\n")
 	slurmfile.write("#SBATCH -t 24:00:00\n")
