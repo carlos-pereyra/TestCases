@@ -21,7 +21,7 @@ if not args.xaxis and not args.yaxis:
 x_label=args.xaxis
 y_label=args.yaxis
 tree=TTree("tree", "my tree")
-datafile=tree.ReadFile("history.csv","Iteration:CL:CD:CSF",',')
+datafile=tree.ReadFile("history.dat","Iteration:CL:CD:CSF",',')
 
 #Canvas 1
 c1=TCanvas("c", "canvas 1", 800, 800)
