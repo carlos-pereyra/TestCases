@@ -1,4 +1,15 @@
+#
+# radius of sphere is fixed at sqrt(3)
+#
+
 package require PWI_Glyph 2
+
+set sr2 [expr sqrt(3)/sqrt(2)]
+set sr3 [expr sqrt(3)]
+
+#puts "value of sr2= $sr2 and sr3= $sr3"
+
+proc makeSphere { nds dr far } {
 
 set _DB(1) [pw::Point create]
 $_DB(1) setPoint {1.2247 1.2247 0}
@@ -865,10 +876,12 @@ set _CN(46) [pw::GridEntity getByName "con-46"]
 set _CN(47) [pw::GridEntity getByName "con-47"]
 set _CN(48) [pw::GridEntity getByName "con-48"]
 
+##
+
 set _TMP(mode_1) [pw::Application begin Dimension]
 set _TMP(PW_1) [pw::Collection create]
 $_TMP(PW_1) set [list $_CN(1) $_CN(2) $_CN(3) $_CN(4) $_CN(5) $_CN(6) $_CN(7) $_CN(8) $_CN(9) $_CN(10) $_CN(11) $_CN(12) $_CN(13) $_CN(14) $_CN(15) $_CN(16) $_CN(17) $_CN(18) $_CN(19) $_CN(20) $_CN(21) $_CN(22) $_CN(23) $_CN(24) $_CN(25) $_CN(26) $_CN(27) $_CN(28) $_CN(29) $_CN(30) $_CN(31) $_CN(32) $_CN(33) $_CN(34) $_CN(35) $_CN(36) $_CN(37) $_CN(38) $_CN(39) $_CN(40) $_CN(41) $_CN(42) $_CN(43) $_CN(44) $_CN(45) $_CN(46) $_CN(47) $_CN(48)]
-$_TMP(PW_1) do setDimension -resetDistribution 10
+$_TMP(PW_1) do setDimension -resetDistribution $nds
 $_TMP(PW_1) delete
 unset _TMP(PW_1)
 $_TMP(mode_1) balance -resetGeneralDistributions
@@ -958,15 +971,15 @@ $_BL(1) setExtrusionSolverAttribute StopAtHeight Off
 $_BL(2) setExtrusionSolverAttribute StopAtHeight Off
 $_BL(3) setExtrusionSolverAttribute StopAtHeight Off
 $_BL(4) setExtrusionSolverAttribute StopAtHeight Off
-$_BL(1) setExtrusionSolverAttribute StopAtHeight 2
-$_BL(2) setExtrusionSolverAttribute StopAtHeight 2
-$_BL(3) setExtrusionSolverAttribute StopAtHeight 2
-$_BL(4) setExtrusionSolverAttribute StopAtHeight 2
-$_BL(1) setExtrusionSolverAttribute NormalInitialStepSize 0.0001
-$_BL(2) setExtrusionSolverAttribute NormalInitialStepSize 0.0001
-$_BL(3) setExtrusionSolverAttribute NormalInitialStepSize 0.0001
-$_BL(4) setExtrusionSolverAttribute NormalInitialStepSize 0.0001
-$_TMP(mode_1) run 200
+$_BL(1) setExtrusionSolverAttribute StopAtHeight [expr $far*sqrt(3)*2]
+$_BL(2) setExtrusionSolverAttribute StopAtHeight [expr $far*sqrt(3)*2]
+$_BL(3) setExtrusionSolverAttribute StopAtHeight [expr $far*sqrt(3)*2]
+$_BL(4) setExtrusionSolverAttribute StopAtHeight [expr $far*sqrt(3)*2]
+$_BL(1) setExtrusionSolverAttribute NormalInitialStepSize $dr
+$_BL(2) setExtrusionSolverAttribute NormalInitialStepSize $dr
+$_BL(3) setExtrusionSolverAttribute NormalInitialStepSize $dr
+$_BL(4) setExtrusionSolverAttribute NormalInitialStepSize $dr
+$_TMP(mode_1) run 10000
 
 $_TMP(mode_1) end
 unset _TMP(mode_1)
@@ -1057,4 +1070,13 @@ $_TMP(mode_1) verify
 $_TMP(mode_1) write
 $_TMP(mode_1) end
 unset _TMP(mode_1)
+
+}
+
+set nds [lindex $argv 0]
+set dr [lindex $argv 1]
+set far [lindex $argv 2]
+
+makeSphere $nds $dr $far
+#makeSphere 15 0.0001 10
 
