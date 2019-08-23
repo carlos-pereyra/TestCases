@@ -10,32 +10,32 @@
 package require PWI_Glyph
 package require PWI_Glyph 2
 
-proc defaults { layers sp } {
+proc defaults { nLayer dR dS } {
     #
     #set defaults
     #
 
     #pw::Connector setDefault Dimension 50
     pw::Connector setCalculateDimensionMethod Spacing
-    pw::Connector setCalculateDimensionSpacing $sp
+    pw::Connector setCalculateDimensionSpacing $dS
     pw::Application setGridPreference Unstructured
     pw::DomainUnstructured setDefault Algorithm AdvancingFrontOrtho
     #pw::DomainUnstructured setDefault Algorithm Delaunay
     pw::DomainUnstructured setDefault IsoCellType TriangleQuad
     pw::DomainUnstructured setDefault TRexGrowthRate 1
     pw::DomainUnstructured setDefault TRexMaximumLayers 2000
-    pw::DomainUnstructured setDefault TRexFullLayers $layers
+    pw::DomainUnstructured setDefault TRexFullLayers $nLayer
     pw::DomainUnstructured setDefault QuadMaximumIncludedAngle 170
     #block mesh configuration
     pw::BlockUnstructured setDefault TRexMaximumLayers 2000
-    pw::BlockUnstructured setDefault TRexFullLayers $layers
+    pw::BlockUnstructured setDefault TRexFullLayers $nLayer
     pw::BlockUnstructured setDefault TRexGrowthRate 1
     pw::BlockUnstructured setDefault TRexCollisionBuffer 3
     pw::BlockUnstructured setDefault TRexSkewCriteriaMaximumAngle 170
     pw::BlockUnstructured setDefault TRexAnisotropicIsotropicBlend 1
     pw::BlockUnstructured setDefault TRexIsotropicSeedLayers 5
     pw::BlockUnstructured setDefault TRexIsotropicHeight 1
-    pw::TRexCondition setAutomaticWallSpacing 0.001
+    pw::TRexCondition setAutomaticWallSpacing $dR
 
 }
 
@@ -71,17 +71,24 @@ proc makeASphere {x y z r} {
 
 }
 
-proc makeSphereMesh { x1 y1 z1 x2 y2 z2 diam far sp bsp layers} {
+#$x1 $y1 $z1 $x2 $y2 $z2 $dR $dS $back_dS $far $nLayer
+proc makeSphereMesh { x1 y1 z1 x2 y2 z2 dR dS back_dS far nLayer} {
+    set diam 1
     set growth 1.05
     set radius [expr $diam/2.]
-    set separation [expr $diam*$sep]
-    set farf [expr $far]
-    #set x_pos [expr $separation*cos(3.14*$ang/180)]
-    #set y_pos [expr $separation*sin(3.14*$ang/180)]
-    #set z_pos 0
-
+    #set separation [expr $diam*$sep]
+    #set farf [expr $far]
+    set x1 [expr $x1/0.01]
+    set y1 [expr $y1/0.01]
+    set z1 [expr $z1/0.01]
+    set x2 [expr $x2/0.01]
+    set y2 [expr $y2/0.01]
+    set z2 [expr $z2/0.01]
+    set dX [expr ($x1+0)/2.]
+    set dY [expr ($y1+0)/2.]
+    set dZ [expr ($z1+0)/2.]
     #=======================================
-    defaults $layers $sp
+    defaults $nLayer $dR $dS
 
     makeASphere 0 0 0 $radius
     makeASphere $x1 $y1 $z1 $radius
@@ -143,12 +150,13 @@ proc makeSphereMesh { x1 y1 z1 x2 y2 z2 diam far sp bsp layers} {
     pw::Display resetView -Z
     $_TMP(PW_1) box -width $dim_z -height $dim_y -length $dim_x
     $_TMP(PW_1) setGridType Unstructured
-    $_TMP(PW_1) setTransform [list 0 1 0 0 0 0 1 0 1 0 0 0 [expr -($far-$separation*0.5)] 0 0 1]
+    #$_TMP(PW_1) setTransform [list 0 1 0 0 0 0 1 0 1 0 0 0 [expr -($far-$separation*0.5)] 0 0 1]
+    $_TMP(PW_1) setTransform [list 0 1 0 0 0 0 1 0 1 0 0 0 [expr -($far-$dX/2.)] [expr -($far-$dY/2.)] [expr -($far-$dZ/2.)] 1]
     $_TMP(PW_1) setSectionQuadrants 4
     $_TMP(PW_1) setIncludeEnclosingEntitiesInBlock 1
     $_TMP(PW_1) setGridBoundary FromSizeField
     $_TMP(PW_1) setSizeFieldDecay [pw::GridEntity getDefault SizeFieldDecay]
-    $_TMP(PW_1) setSizeFieldBackgroundSpacing $bsp
+    $_TMP(PW_1) setSizeFieldBackgroundSpacing $back_dS
     $_TMP(PW_1) setEnclosingEntities [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8]
     $_TMP(PW_1) clearSizeFieldEntities
     $_TMP(PW_1) includeSizeFieldEntity [list $face_1 $face_2 $face_3 $face_4 $face_5 $face_6 $face_7 $face_8] true
@@ -160,7 +168,7 @@ proc makeSphereMesh { x1 y1 z1 x2 y2 z2 diam far sp bsp layers} {
 
     $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexPushAttributes 1
     $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexMaximumLayers 2000
-    $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexFullLayers $layers
+    $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexFullLayers $nLayer
     $_TMP(blockCollection) do setUnstructuredSolverAttribute TRexGrowthRate $growth
     set _TMP(bc) [pw::TRexCondition getByName BuildBlocksMatch]
     set _TMP(doms) [$_TMP(PW_1) getBlockRegisters Symmetry]
@@ -444,14 +452,17 @@ proc makeSphereMesh { x1 y1 z1 x2 y2 z2 diam far sp bsp layers} {
 
 }
 
-#set separation [lindex $argv 0]
-#set angle [lindex $argv 1]
-#set diameter [lindex $argv 2]
-#set far [lindex $argv 3]
-#set sp [lindex $argv 4]
-#set bsp [lindex $argv 5]
-#set layers [lindex $argv 6]
+#set x1 [lindex $argv 0]
+#set y1 [lindex $argv 1]
+#set z1 [lindex $argv 2]
+#set x2 [lindex $argv 3]
+#set y2 [lindex $argv 4]
+#set z2 [lindex $argv 5]
+#set dR [lindex $argv 6]
+#set dS [lindex $argv 7]
+#set back_dS [lindex $argv 8]
+#set far [lindex $argv 9]
+#set nLayer [lindex $argv 10]
 
-#makeSphereMesh $separation $angle $diameter $far $sp $bsp $layers
-makeSphereMesh $x1 $y1 $z1 $far $sp $bsp $layers
-makeSphereMesh 1.2 0 1 7 0.01 .2 1000
+#makeSphereMesh $x1 $y1 $z1 $x2 $y2 $z2 $dR $dS $back_dS $far $nLayer
+makeSphereMesh -0.00512400130491 -0.0260475654836 -0.0299747443734 0.058383826371 0.0386158586218 -0.00037984363827 0.0001 0.01 0.2 7.0 1000
